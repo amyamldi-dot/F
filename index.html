@@ -1,0 +1,2415 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>RS</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-bg-light: rgba(255, 255, 255, 0.08);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    --glass-shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.15);
+    --gradient-primary: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    --gradient-success: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    --gradient-warning: linear-gradient(135deg, #fb923c 0%, #ea580c 100%);
+    --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    --accent-main: #f59e0b;
+    --accent-profit: #34d399;
+    --accent-warning: #fb923c;
+    --accent-danger: #ef4444;
+    --text-primary: #FFFFFF;
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    --text-muted: rgba(255, 255, 255, 0.4);
+    --bg-dark: #0a0f0a;
+    --bg-darker: #060a06;
+    --spacing-xs: 8px;
+    --spacing-sm: 12px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-xl: 32px;
+    --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at 20% 50%, rgba(245, 158, 11, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(52, 211, 153, 0.1) 0%, transparent 50%);
+    animation: gradient-shift 20s ease infinite;
+    z-index: -1;
+}
+
+@keyframes gradient-shift {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(5%, 5%) rotate(120deg); }
+    66% { transform: translate(-5%, 5%) rotate(240deg); }
+}
+
+/* SPLASH */
+.splash-screen {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100vh;
+    background: var(--bg-darker);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeOut 0.5s ease 1.5s forwards;
+}
+
+.splash-content { text-align: center; animation: scaleIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+
+.splash-logo { font-size: 80px; margin-bottom: 20px; animation: bounce 1s ease infinite; }
+
+.splash-title {
+    font-size: 32px;
+    font-weight: 700;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 30px;
+}
+
+.splash-loader {
+    width: 50px; height: 50px;
+    margin: 0 auto;
+    border: 3px solid rgba(255,255,255,0.1);
+    border-top-color: var(--accent-main);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes fadeOut { to { opacity: 0; visibility: hidden; } }
+@keyframes scaleIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* APP */
+.app-container { max-width: 600px; margin: 0 auto; min-height: 100vh; padding-bottom: 80px; }
+
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--glass-shadow);
+    transition: all var(--transition-normal);
+}
+.glass-card:active { transform: scale(0.98); }
+
+/* HEADER */
+.app-header { position: sticky; top: 0; z-index: 100; margin: var(--spacing-md); margin-bottom: var(--spacing-lg); }
+
+.header-content { display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-md); }
+
+.header-title { display: flex; align-items: center; gap: var(--spacing-sm); font-size: 24px; font-weight: 700; }
+.logo-icon { font-size: 28px; }
+.header-actions { display: flex; gap: var(--spacing-sm); }
+
+.icon-btn {
+    width: 44px; height: 44px;
+    border-radius: var(--radius-sm);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    font-size: 20px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+}
+.icon-btn:active { transform: scale(0.9); background: var(--glass-bg-light); }
+
+.notif-badge {
+    position: absolute; top: -4px; right: -4px;
+    width: 20px; height: 20px;
+    background: var(--gradient-danger);
+    border-radius: 50%; font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid var(--bg-dark);
+}
+
+/* VIEWS */
+.app-main { padding: 0 var(--spacing-md); }
+.view { display: none; animation: slideIn 0.3s ease; }
+.view.active { display: block; }
+@keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+/* URGENCY */
+.urgency-card { padding: var(--spacing-lg); margin-bottom: var(--spacing-lg); position: relative; overflow: hidden; }
+.urgency-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--gradient-danger); opacity: 0.1; z-index: 0; }
+.urgency-header { position: relative; z-index: 1; margin-bottom: var(--spacing-md); }
+.urgency-title { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: var(--spacing-sm); }
+.urgency-list { position: relative; z-index: 1; display: flex; flex-direction: column; gap: var(--spacing-sm); }
+.urgency-item { padding: var(--spacing-sm); background: var(--glass-bg); border-radius: var(--radius-sm); font-size: 14px; display: flex; align-items: center; gap: var(--spacing-sm); }
+
+/* STATS */
+.stats-card { padding: var(--spacing-lg); margin-bottom: var(--spacing-lg); position: relative; overflow: hidden; }
+.stats-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--gradient-primary); opacity: 0.1; z-index: 0; }
+.stats-header { display: flex; align-items: center; gap: var(--spacing-md); position: relative; z-index: 1; }
+.stats-icon { font-size: 48px; }
+.stats-label { color: var(--text-secondary); font-size: 14px; margin-bottom: 4px; }
+.stats-value { font-size: 36px; font-weight: 700; }
+.stats-footer { margin-top: var(--spacing-md); position: relative; z-index: 1; }
+.stats-change { display: flex; align-items: center; gap: var(--spacing-xs); font-size: 14px; color: var(--text-secondary); }
+.stats-change.positive { color: var(--accent-profit); }
+
+.quick-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-md); margin-bottom: var(--spacing-lg); }
+.stat-item { padding: var(--spacing-md); text-align: center; }
+.stat-value { font-size: 28px; font-weight: 700; color: var(--accent-main); margin-bottom: 4px; }
+.stat-label { font-size: 12px; color: var(--text-secondary); }
+
+/* SECTIONS */
+.section-title { font-size: 20px; font-weight: 600; margin-bottom: var(--spacing-md); }
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-md); }
+.text-btn { background: none; border: none; color: var(--accent-main); font-size: 14px; cursor: pointer; padding: var(--spacing-xs); }
+
+/* ACTIONS */
+.quick-actions { display: flex; flex-direction: column; gap: var(--spacing-md); margin-bottom: var(--spacing-xl); }
+.action-btn { padding: var(--spacing-lg); border: 1px solid var(--glass-border); cursor: pointer; display: flex; align-items: center; gap: var(--spacing-md); position: relative; overflow: hidden; }
+.action-icon { font-size: 24px; }
+.action-text { font-size: 16px; font-weight: 500; }
+
+/* PRODUCT CARDS */
+.product-list { display: flex; flex-direction: column; gap: var(--spacing-md); margin-bottom: var(--spacing-xl); }
+
+.product-card { padding: var(--spacing-md); cursor: pointer; position: relative; }
+
+.product-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: var(--spacing-sm); }
+.product-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.product-subtitle { font-size: 14px; color: var(--text-secondary); }
+
+.product-status { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+.product-status.ordered { background: rgba(52, 152, 219, 0.2); color: #3498db; }
+.product-status.testing { background: rgba(241, 196, 15, 0.2); color: #f1c40f; }
+.product-status.ready { background: rgba(52, 211, 153, 0.2); color: #34d399; }
+.product-status.online { background: rgba(245, 158, 11, 0.2); color: var(--accent-main); }
+.product-status.sold { background: rgba(155, 89, 182, 0.2); color: #c084fc; }
+.product-status.shipped { background: rgba(127, 140, 141, 0.2); color: #7f8c8d; }
+
+.product-details { display: flex; gap: var(--spacing-sm); margin-bottom: var(--spacing-sm); flex-wrap: wrap; }
+.product-tag { padding: 4px 10px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 8px; font-size: 12px; color: var(--text-secondary); }
+
+.product-footer { display: flex; justify-content: space-between; padding-top: var(--spacing-sm); border-top: 1px solid var(--glass-border); }
+.product-price { font-size: 14px; color: var(--text-secondary); }
+.product-margin { font-size: 16px; font-weight: 600; }
+.product-margin.success { color: var(--accent-profit); }
+
+/* STOCK */
+.stock-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md); margin-bottom: var(--spacing-lg); }
+.stock-item { padding: var(--spacing-md); text-align: center; }
+.stock-icon { font-size: 32px; margin-bottom: var(--spacing-xs); }
+.stock-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+.stock-value { font-size: 24px; font-weight: 700; color: var(--text-primary); }
+.stock-value.low { color: var(--accent-warning); }
+.stock-controls { display: flex; align-items: center; justify-content: center; gap: var(--spacing-sm); margin-top: var(--spacing-sm); }
+.stock-btn { width: 32px; height: 32px; border-radius: 50%; background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-primary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+
+/* ORDERS */
+.order-card { padding: var(--spacing-md); margin-bottom: var(--spacing-md); }
+.order-header { margin-bottom: var(--spacing-sm); }
+.order-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.order-info { font-size: 13px; color: var(--text-secondary); margin-bottom: 2px; }
+.order-footer { display: flex; gap: var(--spacing-sm); margin-top: var(--spacing-sm); }
+.btn-small { padding: 6px 12px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 13px; cursor: pointer; }
+.btn-small.primary { background: var(--gradient-success); border-color: transparent; }
+
+/* SHIPPING */
+.shipping-card { padding: var(--spacing-md); margin-bottom: var(--spacing-md); position: relative; }
+.shipping-card.urgent::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--gradient-danger); }
+.shipping-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--spacing-sm); }
+.shipping-deadline { font-size: 12px; padding: 4px 8px; border-radius: 8px; font-weight: 600; }
+.shipping-deadline.urgent { background: rgba(234, 88, 12, 0.2); color: #fb923c; }
+.shipping-deadline.ok { background: rgba(52, 211, 153, 0.2); color: #34d399; }
+
+/* CHECKLIST */
+.checklist { display: flex; flex-direction: column; gap: var(--spacing-sm); }
+.checklist-item { display: flex; align-items: center; gap: var(--spacing-sm); padding: var(--spacing-sm); background: var(--glass-bg); border-radius: var(--radius-sm); }
+.checkbox { width: 24px; height: 24px; border-radius: 6px; border: 2px solid var(--glass-border); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all var(--transition-fast); }
+.checkbox.checked { background: var(--gradient-primary); border-color: transparent; }
+.checkbox.checked::after { content: '✓'; color: white; font-size: 16px; font-weight: 700; }
+
+/* FAB */
+.fab { position: fixed; bottom: var(--spacing-lg); right: var(--spacing-lg); width: 60px; height: 60px; border-radius: 50%; border: 1px solid var(--glass-border); cursor: pointer; z-index: 90; display: flex; align-items: center; justify-content: center; transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+.fab:active { transform: scale(0.85) rotate(90deg); }
+.fab-icon { font-size: 28px; }
+
+/* MODAL */
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; }
+.modal.active { display: block; }
+.modal-backdrop { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); }
+.modal-sheet { position: absolute; bottom: 0; left: 0; width: 100%; max-width: 600px; max-height: 90vh; border-radius: var(--radius-xl) var(--radius-xl) 0 0; overflow: hidden; margin: 0 auto; right: 0; animation: slideUp 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-handle { width: 40px; height: 4px; background: var(--glass-border); border-radius: 2px; margin: var(--spacing-md) auto; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 0 var(--spacing-lg) var(--spacing-md); }
+.modal-title { font-size: 24px; font-weight: 700; }
+.modal-close { width: 36px; height: 36px; border-radius: 50%; background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-primary); font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.modal-content { padding: 0 var(--spacing-lg) var(--spacing-xl); max-height: calc(90vh - 100px); overflow-y: auto; }
+
+/* FORM */
+.form-group { margin-bottom: var(--spacing-lg); }
+.form-label { display: block; font-size: 14px; font-weight: 500; margin-bottom: var(--spacing-sm); color: var(--text-secondary); }
+.input-field { width: 100%; padding: var(--spacing-md); background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 16px; }
+.input-field:focus { outline: none; border-color: var(--accent-main); }
+.btn-group { display: flex; gap: var(--spacing-sm); flex-wrap: wrap; }
+.btn-option { flex: 1; min-width: 80px; padding: var(--spacing-md); background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-sm); color: var(--text-secondary); cursor: pointer; text-align: center; }
+.btn-option.active { background: var(--gradient-primary); color: var(--text-primary); border-color: transparent; }
+
+.btn-primary { width: 100%; padding: var(--spacing-md) var(--spacing-lg); background: var(--gradient-primary); color: var(--text-primary); border: none; border-radius: var(--radius-sm); font-size: 16px; font-weight: 600; cursor: pointer; }
+.btn-danger { background: var(--gradient-danger); }
+
+/* PRICE PREVIEW */
+.price-preview { padding: var(--spacing-md); margin: var(--spacing-lg) 0; }
+.price-row { display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; }
+.price-row:not(:last-child) { border-bottom: 1px solid var(--glass-border); }
+.price-label { font-size: 14px; color: var(--text-secondary); }
+.price-value { font-size: 18px; font-weight: 600; }
+.price-value.success { color: var(--accent-profit); }
+
+/* TOAST */
+.toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(100px); padding: var(--spacing-md) var(--spacing-lg); border: 1px solid var(--glass-border); z-index: 2000; opacity: 0; transition: all var(--transition-normal); max-width: 90%; text-align: center; }
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+/* OUTPUT */
+.output-header { display: flex; justify-content: space-between; margin-bottom: var(--spacing-md); padding: 0 var(--spacing-md); padding-top: var(--spacing-md); }
+.output-title { font-size: 16px; font-weight: 600; }
+.copy-btn { padding: var(--spacing-xs) var(--spacing-md); background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-sm); color: var(--text-secondary); font-size: 14px; cursor: pointer; }
+.output-content { padding: var(--spacing-md); background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-sm); font-size: 14px; line-height: 1.6; color: var(--text-secondary); white-space: pre-wrap; margin: 0 var(--spacing-md); }
+
+/* VIEW HEADER */
+.view-header { display: flex; align-items: center; gap: var(--spacing-md); margin-bottom: var(--spacing-lg); }
+.back-btn { width: 40px; height: 40px; border-radius: var(--radius-sm); background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-primary); font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.view-title { font-size: 24px; font-weight: 700; flex: 1; }
+
+.textarea { min-height: 80px; resize: vertical; font-family: inherit; }
+
+.success { color: var(--accent-profit); }
+.warning { color: var(--accent-warning); }
+.danger { color: var(--accent-danger); }
+
+/* CATEGORY TABS */
+.category-tabs {
+    display: flex;
+    gap: var(--spacing-sm);
+    overflow-x: auto;
+    padding-bottom: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    -webkit-overflow-scrolling: touch;
+}
+.category-tabs::-webkit-scrollbar { display: none; }
+.cat-tab {
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all var(--transition-fast);
+}
+.cat-tab.active {
+    background: var(--gradient-primary);
+    color: white;
+    border-color: transparent;
+}
+
+/* PHOTO ANALYZER */
+.photo-drop-zone {
+    border: 2px dashed var(--glass-border);
+    border-radius: var(--radius-md);
+    padding: 32px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    background: var(--glass-bg);
+}
+.photo-drop-zone:active, .photo-drop-zone.drag-over {
+    border-color: var(--accent-main);
+    background: rgba(245,158,11,0.08);
+}
+.photo-drop-zone .drop-icon { font-size: 40px; margin-bottom: 8px; }
+.photo-drop-zone p { font-size: 14px; color: var(--text-secondary); }
+.photo-drop-zone input[type=file] { display: none; }
+
+.photo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: var(--spacing-md);
+}
+.photo-thumb {
+    position: relative;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    aspect-ratio: 1;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+}
+.photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.photo-thumb .thumb-remove {
+    position: absolute; top: 4px; right: 4px;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: rgba(0,0,0,0.6); border: none; color: white;
+    font-size: 14px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+}
+.photo-thumb .thumb-score {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 4px 8px; font-size: 11px; font-weight: 700;
+    text-align: center;
+}
+.thumb-score.score-high { background: rgba(251,191,36,0.85); color: #1a1a0a; }
+.thumb-score.score-mid { background: rgba(251,146,60,0.85); color: #fff; }
+.thumb-score.score-low { background: rgba(239,68,68,0.85); color: #fff; }
+
+.photo-analysis-card {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-sm);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+}
+.photo-analysis-card .analysis-rank { font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; }
+.photo-analysis-card .analysis-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+.photo-analysis-card .analysis-tips { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+.photo-analysis-card .analysis-tips li { margin-bottom: 4px; list-style: none; }
+.photo-analysis-card .analysis-tips li::before { content: '→ '; color: var(--accent-main); }
+
+.analyzing-spinner {
+    text-align: center; padding: 24px 0;
+}
+.analyzing-spinner .spin-icon { font-size: 32px; display: inline-block; animation: spin 1s linear infinite; }
+
+/* CHART */
+.chart-container {
+    width: 100%; height: 180px;
+    position: relative; margin: var(--spacing-md) 0;
+}
+.chart-svg { width: 100%; height: 100%; }
+.chart-label { font-size: 10px; fill: var(--text-muted); }
+.chart-grid { stroke: var(--glass-border); stroke-width: 1; }
+.chart-line { fill: none; stroke: var(--accent-main); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.chart-area { fill: url(#chart-grad); opacity: 0.3; }
+.chart-dot { fill: var(--accent-main); }
+.chart-month-tabs { display: flex; gap: 8px; margin-bottom: var(--spacing-md); }
+.chart-tab { padding: 6px 14px; border-radius: 20px; background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-secondary); font-size: 12px; cursor: pointer; }
+.chart-tab.active { background: var(--gradient-primary); color: white; border-color: transparent; }
+
+/* SCAN RAPIDE */
+.scan-row {
+    display: flex; gap: 8px; align-items: center;
+    padding: var(--spacing-sm); background: var(--glass-bg);
+    border: 1px solid var(--glass-border); border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+}
+.scan-row input {
+    background: transparent; border: none; color: var(--text-primary);
+    font-size: 14px; outline: none; flex: 1; min-width: 0;
+}
+.scan-row input::placeholder { color: var(--text-muted); }
+.scan-row .scan-del {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(239,68,68,0.15); border: none; color: var(--accent-danger);
+    font-size: 16px; cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+}
+.scan-add-row {
+    text-align: center; padding: var(--spacing-sm);
+    color: var(--accent-main); font-size: 14px; cursor: pointer;
+    border: 1px dashed var(--glass-border); border-radius: var(--radius-sm);
+}
+
+</style>
+
+</head>
+<body>
+
+<!-- SPLASH -->
+
+<div id="splash-screen" class="splash-screen">
+    <div class="splash-content">
+        <div class="splash-logo">🍋</div>
+        <h1 class="splash-title">RS</h1>
+        <div class="splash-loader"></div>
+    </div>
+</div>
+
+<!-- APP -->
+
+<div id="app" class="app-container" style="display: none;">
+
+```
+<header class="app-header glass-card">
+    <div class="header-content">
+        <h1 class="header-title">
+            <span class="logo-icon">🍋</span>
+            RS
+        </h1>
+        <div class="header-actions">
+            <button class="icon-btn" id="btn-vinted-status" onclick="openVintedConnect()" style="position:relative;">
+                <span>🛒</span>
+                <div id="vinted-dot" style="position:absolute;bottom:4px;right:4px;width:10px;height:10px;border-radius:50%;background:#666;border:2px solid var(--bg-dark);"></div>
+            </button>
+            <button class="icon-btn" onclick="showView('notifications')">
+                <span>🔔</span>
+                <div class="notif-badge" id="notif-count" style="display: none;">0</div>
+            </button>
+            <button class="icon-btn" onclick="showView('stock')">
+                <span>📦</span>
+            </button>
+        </div>
+    </div>
+</header>
+
+<main class="app-main">
+
+    <!-- DASHBOARD -->
+    <div id="view-dashboard" class="view active">
+        <div id="urgency-section"></div>
+
+        <div class="stats-card glass-card" onclick="showView('stats')" style="cursor:pointer;">
+            <div class="stats-header">
+                <div class="stats-icon">💰</div>
+                <div class="stats-info">
+                    <p class="stats-label">Gains ce mois — tap pour graphe 📈</p>
+                    <h2 class="stats-value" id="monthly-revenue">0€</h2>
+                </div>
+            </div>
+            <div class="stats-footer">
+                <div class="stats-change positive" id="revenue-change">
+                    <span>📈 Marge totale sur ventes</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-stats">
+            <div class="stat-item glass-card">
+                <div class="stat-value" id="count-active">0</div>
+                <div class="stat-label">En stock</div>
+            </div>
+            <div class="stat-item glass-card">
+                <div class="stat-value" id="count-sold">0</div>
+                <div class="stat-label">Vendus</div>
+            </div>
+            <div class="stat-item glass-card">
+                <div class="stat-value" id="count-testing">0</div>
+                <div class="stat-label">À vérifier</div>
+            </div>
+        </div>
+
+        <div class="section-title">Actions Rapides</div>
+        <div class="quick-actions">
+            <button class="action-btn glass-card" onclick="openAddModal()" style="background: var(--glass-bg);">
+                <span class="action-icon">➕</span>
+                <span class="action-text">Ajouter un produit</span>
+            </button>
+            <button class="action-btn glass-card" onclick="openScanRapide()" style="background: var(--glass-bg);">
+                <span class="action-icon">⚡</span>
+                <span class="action-text">Scan Rapide (lot)</span>
+            </button>
+            <button class="action-btn glass-card" onclick="openAnnonceModal()" style="background: var(--glass-bg);">
+                <span class="action-icon">📝</span>
+                <span class="action-text">Créer une annonce</span>
+            </button>
+            <button class="action-btn glass-card" onclick="openPhotoAnalyzer()" style="background: var(--glass-bg);">
+                <span class="action-icon">📸</span>
+                <span class="action-text">Analyser mes photos</span>
+            </button>
+            <button class="action-btn glass-card" onclick="showView('market')" style="background: var(--glass-bg);">
+                <span class="action-icon">🔥</span>
+                <span class="action-text">Niches & Tendances</span>
+            </button>
+            <button class="action-btn glass-card" onclick="showView('orders')" style="background: var(--glass-bg);">
+                <span class="action-icon">🛒</span>
+                <span class="action-text">Commandes en cours</span>
+            </button>
+            <button class="action-btn glass-card" onclick="showView('shipping')" style="background: var(--glass-bg);">
+                <span class="action-icon">📮</span>
+                <span class="action-text">À expédier</span>
+            </button>
+        </div>
+
+        <div class="section-title">Mes Produits</div>
+
+        <!-- Category filter -->
+        <div class="category-tabs" id="category-tabs">
+            <button class="cat-tab active" onclick="filterCategory('tous', this)">Tous</button>
+            <button class="cat-tab" onclick="filterCategory('chaussures', this)">👟 Chaussures</button>
+            <button class="cat-tab" onclick="filterCategory('sacs', this)">👜 Sacs</button>
+            <button class="cat-tab" onclick="filterCategory('vestements', this)">👕 Vestements</button>
+            <button class="cat-tab" onclick="filterCategory('accessoires', this)">⌚ Accessoires</button>
+            <button class="cat-tab" onclick="filterCategory('electronique', this)">📱 Électronique</button>
+        </div>
+
+        <div id="recent-products" class="product-list"></div>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div id="view-notifications" class="view">
+        <div class="view-header">
+            <button class="back-btn" onclick="showView('dashboard')">←</button>
+            <h2 class="view-title">Notifications</h2>
+        </div>
+        <div id="notifications-list"></div>
+    </div>
+
+    <!-- STOCK -->
+    <div id="view-stock" class="view">
+        <div class="view-header">
+            <button class="back-btn" onclick="showView('dashboard')">←</button>
+            <h2 class="view-title">Stock Emballage</h2>
+        </div>
+        <div class="stock-grid" id="stock-grid"></div>
+    </div>
+
+    <!-- ORDERS -->
+    <div id="view-orders" class="view">
+        <div class="view-header">
+            <button class="back-btn" onclick="showView('dashboard')">←</button>
+            <h2 class="view-title">Commandes</h2>
+            <button class="icon-btn" onclick="openOrderModal()">➕</button>
+        </div>
+        <div id="orders-list"></div>
+    </div>
+
+    <!-- SHIPPING -->
+    <div id="view-shipping" class="view">
+        <div class="view-header">
+            <button class="back-btn" onclick="showView('dashboard')">←</button>
+            <h2 class="view-title">À expédier</h2>
+        </div>
+        <div id="shipping-list"></div>
+    </div>
+
+    <!-- STATS / GRAPHE -->
+    <div id="view-stats" class="view">
+        <div class="view-header">
+            <button class="back-btn" onclick="showView('dashboard')">←</button>
+            <h2 class="view-title">📈 Statistiques</h2>
+        </div>
+
+        <div class="chart-month-tabs">
+            <button class="chart-tab active" onclick="setChartRange(3, this)">3 mois</button>
+            <button class="chart-tab" onclick="setChartRange(6, this)">6 mois</button>
+            <button class="chart-tab" onclick="setChartRange(12, this)">12 mois</button>
+        </div>
+
+        <div class="glass-card" style="padding: var(--spacing-md); margin-bottom: var(--spacing-md);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+                <span style="font-size:14px; color:var(--text-secondary);">Gains nets</span>
+                <span style="font-size:12px; color:var(--accent-main);" id="chart-total">0€</span>
+            </div>
+            <div class="chart-container">
+                <svg class="chart-svg" id="chart-svg" viewBox="0 0 300 160" preserveAspectRatio="none">
+                    <defs>
+                        <linearGradient id="chart-grad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.4"/>
+                            <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Détail mensuel -->
+        <div class="glass-card" style="padding: var(--spacing-md); margin-bottom: var(--spacing-md);">
+            <div style="font-size:15px; font-weight:600; margin-bottom: var(--spacing-md);">Détail par mois</div>
+            <div id="stats-month-detail"></div>
+        </div>
+
+        <!-- Stats par catégorie -->
+        <div class="glass-card" style="padding: var(--spacing-md);">
+            <div style="font-size:15px; font-weight:600; margin-bottom: var(--spacing-md);">Par catégorie</div>
+            <div id="stats-by-category"></div>
+        </div>
+    </div>
+
+    <!-- MARKET RESEARCH -->
+    <div id="view-market" class="view">
+        <div class="view-header">
+            <button class="back-btn" onclick="showView('dashboard')">←</button>
+            <h2 class="view-title">🔥 Niches & Tendances</h2>
+        </div>
+
+        <div class="glass-card" style="padding:16px; margin-bottom: var(--spacing-md); background:rgba(245,158,11,0.06); border-color:rgba(245,158,11,0.15);">
+            <p style="font-size:13px; color:var(--text-secondary); line-height:1.5; margin-bottom:12px;">
+                Recherche en temps réel des produits qui se vendent bien en ce moment sur Vinted, Depop, et les autres plateformes.
+            </p>
+            <div class="form-group" style="margin-bottom:12px;">
+                <select id="market-category" class="input-field" onchange="updateMarketBrands()">
+                    <option value="">Toutes les catégories</option>
+                    <option value="chaussures">👟 Chaussures</option>
+                    <option value="sacs">👜 Sacs</option>
+                    <option value="vestements">👕 Vestements</option>
+                    <option value="accessoires">⌚ Accessoires</option>
+                    <option value="electronique">📱 Électronique</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom:12px;">
+                <select id="market-brand" class="input-field">
+                    <option value="">Toutes les marques</option>
+                </select>
+            </div>
+            <div style="display:flex; gap:8px;">
+                <button class="btn-primary" onclick="launchMarketResearch()" style="flex:1;" id="btn-market-search">
+                    🔍 Rechercher les niches
+                </button>
+            </div>
+        </div>
+
+        <!-- Historique des recherches récentes -->
+        <div id="market-history" style="margin-bottom: var(--spacing-md);"></div>
+
+        <!-- Résultats en cours -->
+        <div id="market-loading" style="display:none; text-align:center; padding:32px 0;">
+            <div style="font-size:32px; display:inline-block; animation:spin 1s linear infinite;">🔄</div>
+            <p style="color:var(--text-secondary); font-size:14px; margin-top:12px;">Recherche en cours...</p>
+            <p style="color:var(--text-muted); font-size:12px; margin-top:4px;">Analyse des plateformes de revente</p>
+        </div>
+
+        <!-- Résultats -->
+        <div id="market-results"></div>
+    </div>
+
+</main>
+
+<button class="fab glass-card" style="background: var(--gradient-primary); border-color: transparent;" onclick="openAddModal()">
+    <span class="fab-icon">➕</span>
+</button>
+```
+
+</div>
+
+<!-- MODAL : ADD PRODUCT -->
+
+<div id="modal-add-product" class="modal">
+    <div class="modal-backdrop" onclick="closeAddModal()"></div>
+    <div class="modal-sheet glass-card">
+        <div class="modal-handle"></div>
+        <div class="modal-header">
+            <h2 class="modal-title">Nouveau Produit</h2>
+            <button class="modal-close" onclick="closeAddModal()">✕</button>
+        </div>
+        <form id="form-add-product" class="modal-content" onsubmit="handleAddProduct(event)">
+
+```
+        <div class="form-group">
+            <label class="form-label">📂 Catégorie</label>
+            <select id="input-category" class="input-field" required onchange="updateBrandOptions()">
+                <option value="">Choisir une catégorie...</option>
+                <option value="chaussures">👟 Chaussures</option>
+                <option value="sacs">👜 Sacs & Maroquinerie</option>
+                <option value="vestements">👕 Vestements</option>
+                <option value="accessoires">⌚ Accessoires</option>
+                <option value="electronique">📱 Électronique</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">🏷️ Marque</label>
+            <select id="input-brand" class="input-field" required>
+                <option value="">Choisir une marque...</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">📝 Nom du produit</label>
+            <input type="text" id="input-name" class="input-field" placeholder="Ex: Air Max 90, Louis Vuitton Speedy..." required oninput="updatePreview()">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">📏 Taille / Format</label>
+            <input type="text" id="input-size" class="input-field" placeholder="Ex: 42, M, 30cm..." required>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">🎨 Couleur</label>
+            <input type="text" id="input-color" class="input-field" placeholder="Ex: Noir, Blanc, Rouge..." required>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">✨ État</label>
+            <select id="input-condition" class="input-field" required onchange="updatePreview()">
+                <option value="Neuf">Neuf avec étiquette</option>
+                <option value="Neuf sans étiquette">Neuf sans étiquette</option>
+                <option value="Excellent">Très bon état</option>
+                <option value="Bon">Bon état</option>
+                <option value="Acceptable">Acceptable</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">💸 Prix d'achat (€)</label>
+            <input type="number" id="input-purchase-price" class="input-field" placeholder="0" min="0" step="0.01" required oninput="updatePreview()">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">💰 Prix de vente souhaité (€)</label>
+            <input type="number" id="input-sell-price" class="input-field" placeholder="0" min="0" step="0.01" oninput="updatePreview()">
+        </div>
+
+        <div class="glass-card price-preview" id="price-preview-block">
+            <div class="price-row">
+                <span class="price-label">Prix de vente</span>
+                <span class="price-value success" id="preview-sell-price">—</span>
+            </div>
+            <div class="price-row">
+                <span class="price-label">Frais estimés (plateformes + livraison)</span>
+                <span class="price-value" id="preview-fees">—</span>
+            </div>
+            <div class="price-row">
+                <span class="price-label">Marge nette</span>
+                <span class="price-value success" id="preview-margin">—</span>
+            </div>
+            <div class="price-row">
+                <span class="price-label">ROI</span>
+                <span class="price-value" id="preview-roi">—</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">📝 Notes (optionnel)</label>
+            <textarea id="input-notes" class="input-field textarea" rows="3" placeholder="Défauts, détails, source d'achat..."></textarea>
+        </div>
+
+        <button type="submit" class="btn-primary">✅ Ajouter le produit</button>
+    </form>
+</div>
+```
+
+</div>
+
+<!-- MODAL : ANNONCE GENERATOR -->
+
+<div id="modal-annonce" class="modal">
+    <div class="modal-backdrop" onclick="closeAnnonceModal()"></div>
+    <div class="modal-sheet glass-card">
+        <div class="modal-handle"></div>
+        <div class="modal-header">
+            <h2 class="modal-title">📝 Créer une Annonce</h2>
+            <button class="modal-close" onclick="closeAnnonceModal()">✕</button>
+        </div>
+        <div class="modal-content">
+            <div class="form-group">
+                <label class="form-label">Plateforme</label>
+                <div class="btn-group" id="platform-btns">
+                    <button type="button" class="btn-option active" onclick="selectPlatform('vinted', this)">Vinted</button>
+                    <button type="button" class="btn-option" onclick="selectPlatform('leboncoin', this)">Leboncoin</button>
+                    <button type="button" class="btn-option" onclick="selectPlatform('depop', this)">Depop</button>
+                </div>
+            </div>
+
+```
+        <div class="form-group">
+            <label class="form-label">Sélectionner un produit</label>
+            <select id="annonce-product-select" class="input-field" onchange="generateAnnonce()">
+                <option value="">Choisir...</option>
+            </select>
+        </div>
+
+        <div id="annonce-output" style="display: none;">
+            <div class="glass-card" style="margin-bottom: 16px;">
+                <div class="output-header">
+                    <h3 class="output-title">📝 Titre</h3>
+                    <button class="copy-btn" type="button" onclick="copyText('annonce-title')">📋 Copier</button>
+                </div>
+                <div class="output-content" id="annonce-title"></div>
+            </div>
+
+            <div class="glass-card" style="margin-bottom: 16px;">
+                <div class="output-header">
+                    <h3 class="output-title">📄 Description</h3>
+                    <button class="copy-btn" type="button" onclick="copyText('annonce-description')">📋 Copier</button>
+                </div>
+                <div class="output-content" id="annonce-description"></div>
+            </div>
+
+            <div class="glass-card" style="margin-bottom: 16px;">
+                <div class="output-header">
+                    <h3 class="output-title">#️⃣ Hashtags</h3>
+                    <button class="copy-btn" type="button" onclick="copyText('annonce-hashtags')">📋 Copier</button>
+                </div>
+                <div class="output-content" id="annonce-hashtags"></div>
+            </div>
+
+            <button class="btn-primary" type="button" onclick="copyAllAnnonce()" style="margin-bottom:12px;">📋 Tout copier</button>
+            <button class="btn-primary" type="button" id="btn-publish-vinted" onclick="publishToVinted()" style="background:var(--gradient-success); display:none;">
+                🚀 Publier directement sur Vinted
+            </button>
+        </div>
+    </div>
+</div>
+```
+
+</div>
+
+<!-- MODAL : ORDER -->
+
+<div id="modal-order" class="modal">
+    <div class="modal-backdrop" onclick="closeOrderModal()"></div>
+    <div class="modal-sheet glass-card">
+        <div class="modal-handle"></div>
+        <div class="modal-header">
+            <h2 class="modal-title">Nouvelle Commande</h2>
+            <button class="modal-close" onclick="closeOrderModal()">✕</button>
+        </div>
+        <form id="form-order" class="modal-content" onsubmit="handleAddOrder(event)">
+            <div class="form-group">
+                <label class="form-label">📂 Catégorie</label>
+                <select id="order-category" class="input-field" required>
+                    <option value="">Choisir...</option>
+                    <option value="chaussures">👟 Chaussures</option>
+                    <option value="sacs">👜 Sacs</option>
+                    <option value="vestements">👕 Vestements</option>
+                    <option value="accessoires">⌚ Accessoires</option>
+                    <option value="electronique">📱 Électronique</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">📦 Produit</label>
+                <input type="text" id="order-model" class="input-field" placeholder="Nike Air Max 90 - 42 - Noir" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">🏪 Source d'achat</label>
+                <input type="text" id="order-seller" class="input-field" placeholder="Alibaba, Vinted, Leboncoin..." required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">💸 Prix (€)</label>
+                <input type="number" id="order-price" class="input-field" placeholder="0" min="0" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">📅 Livraison prévue</label>
+                <input type="date" id="order-delivery" class="input-field" required>
+            </div>
+            <button type="submit" class="btn-primary">🛒 Ajouter la commande</button>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL : CHECKLIST -->
+
+<div id="modal-checklist" class="modal">
+    <div class="modal-backdrop" onclick="closeChecklistModal()"></div>
+    <div class="modal-sheet glass-card">
+        <div class="modal-handle"></div>
+        <div class="modal-header">
+            <h2 class="modal-title">✅ Vérification produit</h2>
+            <button class="modal-close" onclick="closeChecklistModal()">✕</button>
+        </div>
+        <div class="modal-content">
+            <div id="checklist-content" class="checklist"></div>
+            <button class="btn-primary" onclick="completeChecklist()" style="margin-top: 16px;">✅ Vérifié → Prêt à vendre</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL : VINTED CONNECT -->
+
+<div id="modal-vinted-connect" class="modal">
+    <div class="modal-backdrop" onclick="closeVintedConnect()"></div>
+    <div class="modal-sheet glass-card">
+        <div class="modal-handle"></div>
+        <div class="modal-header">
+            <h2 class="modal-title">🔗 Connexion Vinted</h2>
+            <button class="modal-close" onclick="closeVintedConnect()">✕</button>
+        </div>
+        <div class="modal-content">
+            <div id="vinted-state-disconnected">
+                <div class="glass-card" style="padding:20px; margin-bottom:20px; text-align:center;">
+                    <div style="font-size:48px; margin-bottom:12px;">🔐</div>
+                    <p style="color:var(--text-secondary); font-size:14px; line-height:1.6;">
+                        Colle ton <strong style="color:var(--accent-main);">token de session Vinted</strong> pour connecter ton compte Pro directement.
+                    </p>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">📋 Token de session</label>
+                    <textarea id="input-vinted-token" class="input-field textarea" rows="3" placeholder="Colle ici ton token..."></textarea>
+                </div>
+                <div class="glass-card" style="padding:14px; margin-bottom:20px; background:rgba(245,158,11,0.08); border-color:rgba(245,158,11,0.2);">
+                    <p style="font-size:12px; color:var(--text-secondary); line-height:1.5;">
+                        💡 <strong style="color:var(--accent-main);">Comment obtenir ton token :</strong><br>
+                        1. Ouvre Vinted dans Chrome desktop<br>
+                        2. F12 → Network → filtre <code style="color:var(--accent-main);">api.vinted.fr</code><br>
+                        3. Copie la valeur du header <code style="color:var(--accent-main);">Cookie: session_id=...</code><br>
+                        4. Colle-la ici
+                    </p>
+                </div>
+                <button class="btn-primary" onclick="connectVinted()">🔗 Connecter mon compte</button>
+            </div>
+            <div id="vinted-state-connected" style="display:none;">
+                <div class="glass-card" style="padding:20px; margin-bottom:20px; text-align:center; background:rgba(52,211,153,0.08); border-color:rgba(245,158,11,0.2);">
+                    <div style="font-size:36px; margin-bottom:8px;">✅</div>
+                    <p style="color:var(--accent-profit); font-weight:600; margin-bottom:4px;">Compte connecté</p>
+                    <p style="color:var(--text-secondary); font-size:13px;" id="vinted-connected-user">—</p>
+                </div>
+                <div class="glass-card" style="padding:16px; margin-bottom:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <span style="font-size:14px; color:var(--text-secondary);">Annonces publiées via appli</span>
+                        <span style="font-size:20px; font-weight:700; color:var(--accent-main);" id="vinted-pub-count">0</span>
+                    </div>
+                </div>
+                <button class="btn-primary btn-danger" onclick="disconnectVinted()">🔓 Déconnecter</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL : SCAN RAPIDE -->
+
+<div id="modal-scan-rapide" class="modal">
+    <div class="modal-backdrop" onclick="closeScanRapide()"></div>
+    <div class="modal-sheet glass-card">
+        <div class="modal-handle"></div>
+        <div class="modal-header">
+            <h2 class="modal-title">⚡ Scan Rapide</h2>
+            <button class="modal-close" onclick="closeScanRapide()">✕</button>
+        </div>
+        <div class="modal-content">
+            <div class="form-group">
+                <label class="form-label">📂 Catégorie du lot</label>
+                <select id="scan-category" class="input-field" required onchange="updateScanBrands()">
+                    <option value="">Choisir...</option>
+                    <option value="chaussures">👟 Chaussures</option>
+                    <option value="sacs">👜 Sacs</option>
+                    <option value="vestements">👕 Vestements</option>
+                    <option value="accessoires">⌚ Accessoires</option>
+                    <option value="electronique">📱 Électronique</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">🏷️ Marque du lot</label>
+                <select id="scan-brand" class="input-field">
+                    <option value="">Choisir...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">💰 Prix d'achat par unité (€)</label>
+                <input type="number" id="scan-purchase-price" class="input-field" placeholder="Ex: 15" min="0" step="0.01">
+            </div>
+
+```
+        <label class="form-label" style="margin-bottom:8px; display:block;">📝 Produits du lot — une ligne par produit</label>
+        <div id="scan-rows"></div>
+        <div class="scan-add-row" onclick="addScanRow()">+ Ajouter une ligne</div>
+
+        <div style="margin-top: var(--spacing-lg); display:flex; gap:8px;">
+            <button class="btn-primary" onclick="submitScanRapide()" style="flex:1;">✅ Ajouter tout</button>
+        </div>
+    </div>
+</div>
+```
+
+</div>
+
+<!-- MODAL : PHOTO ANALYZER -->
+
+<div id="modal-photo-analyzer" class="modal">
+    <div class="modal-backdrop" onclick="closePhotoAnalyzer()"></div>
+    <div class="modal-sheet glass-card">
+        <div class="modal-handle"></div>
+        <div class="modal-header">
+            <h2 class="modal-title">📸 Analyser Photos</h2>
+            <button class="modal-close" onclick="closePhotoAnalyzer()">✕</button>
+        </div>
+        <div class="modal-content">
+            <p style="font-size:13px; color:var(--text-secondary); margin-bottom: var(--spacing-md); line-height:1.5;">
+                Envoie tes photos de produit — l'IA analyse chacune et te dit lesquelles sont les plus vendeuses, pourquoi, et comment les améliorer.
+            </p>
+
+```
+        <div class="photo-drop-zone" id="photo-drop-zone" onclick="document.getElementById('photo-file-input').click()">
+            <div class="drop-icon">📸</div>
+            <p><strong>Tap pour ajouter des photos</strong></p>
+            <p style="font-size:12px; margin-top:4px;">ou glisse ici (desktop)</p>
+            <input type="file" id="photo-file-input" multiple accept="image/*" onchange="handlePhotoSelect(event)">
+        </div>
+
+        <div class="photo-grid" id="photo-grid"></div>
+
+        <div id="photo-analyzing" class="analyzing-spinner" style="display:none;">
+            <div class="spin-icon">🔄</div>
+            <p style="color:var(--text-secondary); font-size:14px; margin-top:8px;">Analyse en cours avec l'IA...</p>
+        </div>
+
+        <div id="photo-results" style="display:none; margin-top: var(--spacing-md);"></div>
+
+        <button class="btn-primary" id="btn-analyze-photos" onclick="analyzePhotos()" style="margin-top: var(--spacing-md); display:none;">
+            🧠 Analyser ces photos
+        </button>
+    </div>
+</div>
+```
+
+</div>
+
+<!-- TOAST -->
+
+<div id="toast" class="toast glass-card">
+    <span id="toast-message"></span>
+</div>
+
+<script>
+// ===== DATA =====
+let products = [];
+let orders = [];
+let stock = { cartonsSmall: 15, cartonsLarge: 8, bubbleWrap: 10, tape: 3, labels: 30 };
+let currentCategory = 'tous';
+let currentPlatform = 'vinted';
+let currentChecklistProduct = null;
+
+const BRANDS = {
+    chaussures: ['Nike','Adidas','Puma','New Balance','Converse','Vans','Jordan','Balenciaga','Yeezy','On Running'],
+    sacs: ['Louis Vuitton','Gucci','Chanel','Michael Kors','Longchamp','Coach','Hermès','Zara','H&M','Adidas'],
+    vestements: ['Nike','Adidas','Zara','H&M','Pull & Bear','Mango','Levi\'s','Gucci','Ralph Lauren','Balenciaga'],
+    accessoires: ['Apple','Samsung','Ray-Ban','Oakley','Cartier','Nike','Adidas','Gucci','Rolex','Fossil'],
+    electronique: ['Apple','Samsung','Sony','Xiaomi','AirPods','PlayStation','Nintendo','Google','OnePlus','Beats']
+};
+
+const CHECKLIST_ITEMS = [
+    { id: 'authenticity', label: '🏷️ Authentification vérifié', checked: false },
+    { id: 'condition', label: '✨ État conforme à la description', checked: false },
+    { id: 'defects', label: '🔍 Défauts identifiés & notés', checked: false },
+    { id: 'cleaning', label: '🧹 Produit nettoyé', checked: false },
+    { id: 'photos', label: '📸 Photos prises (min 5)', checked: false },
+    { id: 'packaging', label: '📦 Emballage vérifié', checked: false },
+    { id: 'serial', label: '🔢 Numéro de série noté', checked: false }
+];
+
+const CONFIG = { platformFees: 12.8, shippingCost: 5, shippingDeadlineDays: 5 };
+
+// ===== INIT =====
+function init() {
+    loadData();
+    loadVintedSession();
+    updateDashboard();
+    setTimeout(() => {
+        document.getElementById('splash-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+    }, 2000);
+}
+
+function loadData() {
+    const p = localStorage.getItem('rs_products');
+    if (p) { products = JSON.parse(p); }
+    else {
+        products = [
+            { id: 1, category: 'chaussures', brand: 'Nike', name: 'Air Max 90', size: '42', color: 'Noir/Blanc', condition: 'Très bon état', purchasePrice: 25, sellPrice: 95, status: 'ready', notes: 'Acheté Alibaba', createdAt: Date.now(), soldAt: null, shippedAt: null, customerName: '' },
+            { id: 2, category: 'sacs', brand: 'Louis Vuitton', name: 'Speedy 30', size: '30cm', color: 'Marron', condition: 'Bon état', purchasePrice: 180, sellPrice: 620, status: 'online', notes: '', createdAt: Date.now() - 86400000, soldAt: null, shippedAt: null, customerName: '' },
+            { id: 3, category: 'vestements', brand: 'Adidas', name: 'Hoodie Trefoil', size: 'M', color: 'Noir', condition: 'Neuf avec étiquette', purchasePrice: 15, sellPrice: 65, status: 'testing', notes: 'Lot Alibaba', createdAt: Date.now() - 172800000, soldAt: null, shippedAt: null, customerName: '' },
+            { id: 4, category: 'chaussures', brand: 'Jordan', name: 'Air Jordan 1 Retro', size: '43', color: 'Rouge/Noir', condition: 'Très bon état', purchasePrice: 45, sellPrice: 180, status: 'sold', notes: '', createdAt: Date.now() - 259200000, soldAt: Date.now() - 86400000, shippedAt: null, customerName: '@thomas_resale' },
+            { id: 5, category: 'accessoires', brand: 'Ray-Ban', name: 'Wayfarer Classic', size: 'One size', color: 'Noir', condition: 'Neuf avec étiquette', purchasePrice: 12, sellPrice: 55, status: 'ready', notes: 'Lot de 10 paires', createdAt: Date.now() - 43200000, soldAt: null, shippedAt: null, customerName: '' }
+        ];
+        saveProducts();
+    }
+    const o = localStorage.getItem('rs_orders');
+    if (o) orders = JSON.parse(o);
+    else {
+        orders = [{ id: Date.now(), category: 'chaussures', model: 'Nike Dunk Low x 5 paires', seller: 'Alibaba - Seller Star99', price: 85, deliveryDate: new Date(Date.now() + 259200000).toISOString().split('T')[0], status: 'pending', createdAt: Date.now() }];
+        saveOrders();
+    }
+    const s = localStorage.getItem('rs_stock');
+    if (s) stock = JSON.parse(s);
+}
+
+function saveProducts() { localStorage.setItem('rs_products', JSON.stringify(products)); }
+function saveOrders() { localStorage.setItem('rs_orders', JSON.stringify(orders)); }
+function saveStock() { localStorage.setItem('rs_stock', JSON.stringify(stock)); }
+
+// ===== DASHBOARD =====
+function updateDashboard() {
+    const sold = products.filter(p => p.status === 'sold' || p.status === 'shipped');
+    const totalMargin = sold.reduce((s, p) => s + (p.sellPrice - p.purchasePrice), 0);
+    document.getElementById('monthly-revenue').textContent = totalMargin.toFixed(0) + '€';
+
+    document.getElementById('count-active').textContent = products.filter(p => p.status === 'ready' || p.status === 'online').length;
+    document.getElementById('count-sold').textContent = sold.length;
+    document.getElementById('count-testing').textContent = products.filter(p => p.status === 'testing').length;
+
+    renderUrgency();
+    renderProducts();
+}
+
+function renderUrgency() {
+    const now = Date.now();
+    const urgent = products.filter(p => p.status === 'sold' && !p.shippedAt).filter(p => {
+        const daysLeft = CONFIG.shippingDeadlineDays - Math.floor((now - p.soldAt) / 86400000);
+        return daysLeft <= 2;
+    });
+    const container = document.getElementById('urgency-section');
+    if (urgent.length === 0) { container.innerHTML = ''; return; }
+    container.innerHTML = `
+        <div class="urgency-card glass-card">
+            <div class="urgency-header"><div class="urgency-title">🚨 URGENT (${urgent.length})</div></div>
+            <div class="urgency-list">
+                ${urgent.map(p => {
+                    const daysLeft = CONFIG.shippingDeadlineDays - Math.floor((now - p.soldAt) / 86400000);
+                    return `<div class="urgency-item"><span>⚡</span><span style="flex:1">${p.brand} ${p.name} — ${daysLeft > 0 ? daysLeft + 'j' : 'AUJOURD\'HUI'} pour expédier</span></div>`;
+                }).join('')}
+            </div>
+        </div>`;
+}
+
+function filterCategory(cat, btn) {
+    currentCategory = cat;
+    document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderProducts();
+}
+
+function renderProducts() {
+    const container = document.getElementById('recent-products');
+    let filtered = [...products].sort((a, b) => b.createdAt - a.createdAt);
+    if (currentCategory !== 'tous') filtered = filtered.filter(p => p.category === currentCategory);
+
+    if (filtered.length === 0) {
+        container.innerHTML = `<div class="glass-card" style="padding:32px;text-align:center;color:var(--text-secondary);"><p>Aucun produit dans cette catégorie</p><p style="font-size:14px;margin-top:8px;">Tap ➕ pour en ajouter</p></div>`;
+        return;
+    }
+
+    const statusLabels = { ordered:'Commandé', testing:'À vérifier', ready:'Prêt à vendre', online:'En ligne', sold:'Vendu', shipped:'Expédié' };
+    const catIcons = { chaussures:'👟', sacs:'👜', vestements:'👕', accessoires:'⌚', electronique:'📱' };
+
+    container.innerHTML = filtered.map(p => `
+        <div class="product-card glass-card" onclick="openProductAction(${p.id})">
+            <div class="product-header">
+                <div>
+                    <div class="product-title">${catIcons[p.category] || ''} ${p.brand} ${p.name}</div>
+                    <div class="product-subtitle">${p.size} • ${p.color}</div>
+                </div>
+                <div class="product-status ${p.status}">${statusLabels[p.status]}</div>
+            </div>
+            <div class="product-details">
+                <span class="product-tag">✨ ${p.condition}</span>
+                <span class="product-tag">📏 ${p.size}</span>
+                ${p.status === 'sold' && p.customerName ? `<span class="product-tag">👤 ${p.customerName}</span>` : ''}
+            </div>
+            <div class="product-footer">
+                <span class="product-price">${p.purchasePrice}€ → ${p.sellPrice}€</span>
+                <span class="product-margin success">+${(p.sellPrice - p.purchasePrice).toFixed(0)}€ (${(((p.sellPrice - p.purchasePrice)/p.purchasePrice)*100).toFixed(0)}%)</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+// ===== PRODUCT ACTIONS =====
+function openProductAction(id) {
+    const product = products.find(p => p.id === id);
+    if (!product) return;
+    if (product.status === 'testing') { openChecklistModal(id); }
+    else if (product.status === 'sold') {
+        if (confirm(`Marquer "${product.brand} ${product.name}" comme expédié ?`)) {
+            product.status = 'shipped';
+            product.shippedAt = Date.now();
+            stock.cartonsSmall = Math.max(0, stock.cartonsSmall - 1);
+            stock.bubbleWrap = Math.max(0, stock.bubbleWrap - 1);
+            stock.labels = Math.max(0, stock.labels - 1);
+            saveProducts(); saveStock(); updateDashboard();
+            showToast('📦 Produit expédié !');
+        }
+    } else {
+        showToast('Détails du produit — En développement');
+    }
+}
+
+// ===== CHECKLIST =====
+function openChecklistModal(id) {
+    currentChecklistProduct = id;
+    document.getElementById('checklist-content').innerHTML = CHECKLIST_ITEMS.map(item => `
+        <div class="checklist-item">
+            <div class="checkbox" id="check-${item.id}" onclick="toggleCheck('${item.id}')"></div>
+            <span>${item.label}</span>
+        </div>
+    `).join('');
+    document.getElementById('modal-checklist').classList.add('active');
+}
+
+function closeChecklistModal() {
+    document.getElementById('modal-checklist').classList.remove('active');
+    currentChecklistProduct = null;
+}
+
+function toggleCheck(id) {
+    const item = CHECKLIST_ITEMS.find(i => i.id === id);
+    if (!item) return;
+    item.checked = !item.checked;
+    document.getElementById(`check-${id}`).classList.toggle('checked', item.checked);
+}
+
+function completeChecklist() {
+    if (!CHECKLIST_ITEMS.every(i => i.checked)) {
+        if (!confirm('Tous les points ne sont pas validés. Continuer ?')) return;
+    }
+    const product = products.find(p => p.id === currentChecklistProduct);
+    if (product) { product.status = 'ready'; saveProducts(); updateDashboard(); showToast('✅ Produit prêt à vendre !'); }
+    CHECKLIST_ITEMS.forEach(i => i.checked = false);
+    closeChecklistModal();
+}
+
+// ===== ADD PRODUCT MODAL =====
+function openAddModal() { document.getElementById('modal-add-product').classList.add('active'); }
+
+function closeAddModal() {
+    document.getElementById('modal-add-product').classList.remove('active');
+    document.getElementById('form-add-product').reset();
+    document.getElementById('input-brand').innerHTML = '<option value="">Choisir une marque...</option>';
+    document.getElementById('preview-sell-price').textContent = '—';
+    document.getElementById('preview-fees').textContent = '—';
+    document.getElementById('preview-margin').textContent = '—';
+    document.getElementById('preview-roi').textContent = '—';
+}
+
+function updateBrandOptions() {
+    const cat = document.getElementById('input-category').value;
+    const select = document.getElementById('input-brand');
+    const brands = BRANDS[cat] || [];
+    select.innerHTML = '<option value="">Choisir une marque...</option>' + brands.map(b => `<option value="${b}">${b}</option>`).join('');
+}
+
+function updatePreview() {
+    const purchase = parseFloat(document.getElementById('input-purchase-price').value) || 0;
+    let sell = parseFloat(document.getElementById('input-sell-price').value) || 0;
+    if (purchase <= 0) return;
+    if (sell <= 0) { sell = Math.round(purchase * 3.5); document.getElementById('input-sell-price').value = sell; }
+
+    const fees = (sell * CONFIG.platformFees / 100) + CONFIG.shippingCost;
+    const margin = sell - fees - purchase;
+    const roi = ((margin / purchase) * 100).toFixed(0);
+
+    document.getElementById('preview-sell-price').textContent = sell + '€';
+    document.getElementById('preview-fees').textContent = fees.toFixed(1) + '€';
+    document.getElementById('preview-margin').textContent = margin.toFixed(1) + '€';
+    document.getElementById('preview-margin').className = 'price-value ' + (margin > 0 ? 'success' : 'danger');
+    document.getElementById('preview-roi').textContent = roi + '%';
+    document.getElementById('preview-roi').className = 'price-value ' + (roi > 0 ? 'success' : 'danger');
+}
+
+function handleAddProduct(e) {
+    e.preventDefault();
+    const purchase = parseFloat(document.getElementById('input-purchase-price').value);
+    const sell = parseFloat(document.getElementById('input-sell-price').value) || Math.round(purchase * 3.5);
+
+    products.unshift({
+        id: Date.now(),
+        category: document.getElementById('input-category').value,
+        brand: document.getElementById('input-brand').value,
+        name: document.getElementById('input-name').value,
+        size: document.getElementById('input-size').value,
+        color: document.getElementById('input-color').value,
+        condition: document.getElementById('input-condition').value,
+        purchasePrice: purchase,
+        sellPrice: sell,
+        status: 'testing',
+        notes: document.getElementById('input-notes').value,
+        createdAt: Date.now(),
+        soldAt: null,
+        shippedAt: null,
+        customerName: ''
+    });
+
+    saveProducts(); closeAddModal(); updateDashboard();
+    showToast('✅ Produit ajouté !');
+}
+
+// ===== VINTED CONNECTION =====
+let vintedToken = null;
+let vintedUser = null;
+let vintedPublishCount = 0;
+
+function loadVintedSession() {
+    const saved = localStorage.getItem('resale_vinted_token');
+    if (saved) {
+        try {
+            const data = JSON.parse(saved);
+            vintedToken = data.token;
+            vintedUser = data.user;
+            vintedPublishCount = data.pubCount || 0;
+            updateVintedUI();
+        } catch(e) { localStorage.removeItem('resale_vinted_token'); }
+    }
+}
+
+function saveVintedSession() {
+    if (vintedToken) {
+        localStorage.setItem('resale_vinted_token', JSON.stringify({ token: vintedToken, user: vintedUser, pubCount: vintedPublishCount }));
+    }
+}
+
+function openVintedConnect() { document.getElementById('modal-vinted-connect').classList.add('active'); }
+function closeVintedConnect() { document.getElementById('modal-vinted-connect').classList.remove('active'); }
+
+function updateVintedUI() {
+    const dot = document.getElementById('vinted-dot');
+    const disc = document.getElementById('vinted-state-disconnected');
+    const conn = document.getElementById('vinted-state-connected');
+    if (vintedToken) {
+        dot.style.background = '#34d399';
+        disc.style.display = 'none';
+        conn.style.display = 'block';
+        document.getElementById('vinted-connected-user').textContent = vintedUser || 'Compte Pro';
+        document.getElementById('vinted-pub-count').textContent = vintedPublishCount;
+    } else {
+        dot.style.background = '#666';
+        disc.style.display = 'block';
+        conn.style.display = 'none';
+    }
+}
+
+async function connectVinted() {
+    const raw = document.getElementById('input-vinted-token').value.trim();
+    if (!raw) { showToast('⚠️ Colle ton token d\'abord'); return; }
+    showToast('🔄 Connexion...');
+    vintedToken = raw.includes('session_id=') ? raw : 'session_id=' + raw;
+    vintedUser = 'Compte Pro';
+    vintedPublishCount = 0;
+
+    try {
+        const res = await fetch('https://www.vinted.fr/api/v1/users/me', {
+            headers: { 'Cookie': vintedToken, 'Accept': 'application/json', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
+            credentials: 'include'
+        });
+        if (res.ok) {
+            const d = await res.json();
+            vintedUser = d.user?.login || d.login || 'Compte Pro';
+        }
+    } catch(e) { /* CORS bloque — normal depuis un fichier local */ }
+
+    saveVintedSession();
+    updateVintedUI();
+    showToast('✅ Compte Vinted connecté !');
+}
+
+function disconnectVinted() {
+    vintedToken = null; vintedUser = null; vintedPublishCount = 0;
+    localStorage.removeItem('resale_vinted_token');
+    updateVintedUI();
+    showToast('🔓 Déconnecté');
+}
+
+// ===== VINTED CATEGORIES & BRANDS MAP =====
+const VINTED_CAT = {
+    chaussures: { id: 12, brands: { 'Nike':109,'Adidas':112,'Puma':115,'New Balance':230,'Converse':111,'Vans':116,'Jordan':109,'Balenciaga':41,'Yeezy':109,'On Running':6498 } },
+    sacs:       { id: 5,  brands: { 'Louis Vuitton':37,'Gucci':40,'Chanel':42,'Michael Kors':236,'Longchamp':217,'Coach':218,'Hermès':38,'Zara':52,'H&M':49,'Adidas':112 } },
+    vestements: { id: 1,  brands: { 'Nike':109,'Adidas':112,'Zara':52,'H&M':49,'Pull & Bear':133,'Mango':50,"Levi's":88,'Gucci':40,'Ralph Lauren':97,'Balenciaga':41 } },
+    accessoires:{ id: 3,  brands: { 'Apple':2683,'Samsung':2684,'Ray-Ban':340,'Oakley':341,'Cartier':44,'Nike':109,'Adidas':112,'Gucci':40,'Rolex':43,'Fossil':342 } },
+    electronique:{ id: 4, brands: { 'Apple':2683,'Samsung':2684,'Sony':2685,'Xiaomi':2686,'PlayStation':2687,'Nintendo':2688,'Google':2689,'OnePlus':2690,'Beats':2691 } }
+};
+
+const VINTED_COND = { 'Neuf':1,'Neuf avec étiquette':1,'Neuf sans étiquette':2,'Très bon état':3,'Bon état':4,'Acceptable':5 };
+
+// ===== PUBLISH TO VINTED =====
+async function publishToVinted() {
+    if (!vintedToken) { showToast('⚠️ Connecte ton compte'); openVintedConnect(); return; }
+    const pid = parseInt(document.getElementById('annonce-product-select').value);
+    const p = products.find(pr => pr.id === pid);
+    if (!p) { showToast('⚠️ Sélectionne un produit'); return; }
+    if (p.vintedItemId) { showToast('✅ Déjà publié'); return; }
+
+    const title = document.getElementById('annonce-title').textContent;
+    const desc  = document.getElementById('annonce-description').textContent;
+    const cat   = VINTED_CAT[p.category];
+    const catId = cat?.id || 1;
+    const brandId = cat?.brands?.[p.brand] || 0;
+    const condId  = VINTED_COND[p.condition] || 3;
+
+    showToast('🚀 Publication...');
+
+    const body = {
+        item: {
+            title,
+            description: desc,
+            price: p.sellPrice,
+            currency: 'EUR',
+            category_id: catId,
+            brand_id: brandId,
+            condition_id: condId,
+            shipping_option_id: 1,
+            is_for_kids: false
+        }
+    };
+
+    try {
+        const res = await fetch('https://www.vinted.fr/api/v1/items', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Cookie': vintedToken,
+                'Accept': 'application/json',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Origin': 'https://www.vinted.fr',
+                'Referer': 'https://www.vinted.fr/sell'
+            },
+            credentials: 'include',
+            body: JSON.stringify(body)
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            const itemId = data.item?.id || data.id || 'OK';
+            p.status = 'online';
+            p.vintedItemId = itemId;
+            saveProducts(); updateDashboard();
+            vintedPublishCount++;
+            saveVintedSession();
+            document.getElementById('vinted-pub-count').textContent = vintedPublishCount;
+
+            const btn = document.getElementById('btn-publish-vinted');
+            btn.textContent = '✅ Publié sur Vinted';
+            btn.style.opacity = '0.5';
+            btn.style.pointerEvents = 'none';
+
+            showToast('✅ Publié sur Vinted ! ID: ' + itemId);
+        } else {
+            if (res.status === 401 || res.status === 403) {
+                showToast('❌ Token expiré — reconnecte');
+                disconnectVinted();
+            } else if (res.status === 422) {
+                showToast('⚠️ Données invalides — vérifie prix / catégorie');
+            } else {
+                showToast('❌ Erreur ' + res.status);
+            }
+        }
+    } catch(e) {
+        showToast('❌ Erreur réseau — ouvre depuis vinted.fr ou utilise une extension CORS');
+        console.error(e);
+    }
+}
+
+// ===== ANNONCE GENERATOR =====
+let currentPlatformSel = 'vinted';
+
+function openAnnonceModal() {
+    const select = document.getElementById('annonce-product-select');
+    const avail = products.filter(p => p.status === 'ready' || p.status === 'online');
+    const catIcons = { chaussures:'👟', sacs:'👜', vestements:'👕', accessoires:'⌚', electronique:'📱' };
+    select.innerHTML = '<option value="">Choisir...</option>' +
+        avail.map(p => `<option value="${p.id}">${catIcons[p.category]||''} ${p.brand} ${p.name} (${p.size})${p.vintedItemId ? ' ✅ Vinted' : ''}</option>`).join('');
+    document.getElementById('annonce-output').style.display = 'none';
+    document.getElementById('modal-annonce').classList.add('active');
+}
+
+function closeAnnonceModal() { document.getElementById('modal-annonce').classList.remove('active'); }
+
+function selectPlatform(platform, btn) {
+    currentPlatformSel = platform;
+    document.querySelectorAll('#platform-btns .btn-option').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('btn-publish-vinted').style.display = (platform === 'vinted' && vintedToken) ? 'block' : 'none';
+    const sel = document.getElementById('annonce-product-select').value;
+    if (sel) generateAnnonce();
+}
+
+function generateAnnonce() {
+    const id = parseInt(document.getElementById('annonce-product-select').value);
+    if (!id) { document.getElementById('annonce-output').style.display = 'none'; return; }
+    const p = products.find(pr => pr.id === id);
+    if (!p) return;
+
+    let title, description, hashtags;
+    const catIcons = { chaussures:'👟', sacs:'👜', vestements:'👕', accessoires:'⌚', electronique:'📱' };
+
+    if (currentPlatformSel === 'vinted') {
+        title = `${p.brand} ${p.name} - ${p.size} - ${p.color} | ${p.condition}`;
+        description = `${catIcons[p.category]} ${p.brand} ${p.name}\n\n✨ ÉTAT : ${p.condition}\n📏 TAILLE : ${p.size}\n🎨 COULEUR : ${p.color}\n\n${p.condition.includes('Neuf') ? '🌟 NEUF — Non utilisé, condition parfaite\n' : ''}📦 Expédié avec soin dans emballage protégé\n🚀 Expédition rapide (1-3 jours)\n💯 Satisfait ou remboursé\n📸 Photos réelles du produit\n\n${p.notes ? '📝 Note : ' + p.notes : '⚠️ Merci de vérifier les photos avant commande'}`;
+        hashtags = `#${p.brand.toLowerCase()} #${p.category} #${p.name.toLowerCase().replace(/\s+/g,'')} #occasion #revente #bonplan #mode #style`;
+    } else if (currentPlatformSel === 'leboncoin') {
+        title = `${p.brand} ${p.name} ${p.size} ${p.color} — ${p.condition}`;
+        description = `Vends ${p.brand} ${p.name}\n\n• Taille : ${p.size}\n• Couleur : ${p.color}\n• État : ${p.condition}\n${p.notes ? '\n📝 ' + p.notes : ''}\n\nPrix ferme. Livraison possible ou remise en main propre.\nPaiement : virement ou PayPal.`;
+        hashtags = '';
+    } else {
+        title = `${p.brand} ${p.name} ${p.size} — ${p.condition} ✨`;
+        description = `${catIcons[p.category]} ${p.brand} ${p.name}\n\nSize: ${p.size} | Color: ${p.color}\nCondition: ${p.condition}\n\n${p.condition.includes('Neuf') ? '🏷️ Brand New, never worn\n' : ''}Ships fast & secure 📦\nTracked delivery included\nDM for more photos!\n\n${p.notes ? '📝 ' + p.notes : ''}`;
+        hashtags = `#${p.brand.toLowerCase()} #${p.category} #vintage #resale #streetwear #fashion`;
+    }
+
+    document.getElementById('annonce-title').textContent = title;
+    document.getElementById('annonce-description').textContent = description;
+    document.getElementById('annonce-hashtags').textContent = hashtags || '(pas de hashtags sur cette plateforme)';
+    document.getElementById('annonce-output').style.display = 'block';
+
+    // Bouton publish Vinted
+    const btn = document.getElementById('btn-publish-vinted');
+    if (currentPlatformSel === 'vinted' && vintedToken) {
+        btn.style.display = 'block';
+        if (p.vintedItemId) {
+            btn.textContent = '✅ Déjà publié sur Vinted';
+            btn.style.opacity = '0.5';
+            btn.style.pointerEvents = 'none';
+        } else {
+            btn.textContent = '🚀 Publier directement sur Vinted';
+            btn.style.opacity = '1';
+            btn.style.pointerEvents = 'auto';
+        }
+    } else {
+        btn.style.display = 'none';
+    }
+
+    p.status = 'online';
+    saveProducts(); updateDashboard();
+}
+
+
+function copyText(id) {
+    navigator.clipboard.writeText(document.getElementById(id).textContent)
+        .then(() => showToast('📋 Copié !'))
+        .catch(() => showToast('❌ Erreur'));
+}
+
+function copyAllAnnonce() {
+    const t = document.getElementById('annonce-title').textContent;
+    const d = document.getElementById('annonce-description').textContent;
+    const h = document.getElementById('annonce-hashtags').textContent;
+    navigator.clipboard.writeText(`${t}\n\n${d}\n\n${h}`)
+        .then(() => showToast('📋 Tout copié !'))
+        .catch(() => showToast('❌ Erreur'));
+}
+
+// ===== SCAN RAPIDE =====
+let scanRows = [''];
+
+function openScanRapide() {
+    scanRows = [''];
+    document.getElementById('scan-category').value = '';
+    document.getElementById('scan-brand').value = '';
+    document.getElementById('scan-purchase-price').value = '';
+    renderScanRows();
+    document.getElementById('modal-scan-rapide').classList.add('active');
+}
+function closeScanRapide() { document.getElementById('modal-scan-rapide').classList.remove('active'); }
+
+function updateScanBrands() {
+    const cat = document.getElementById('scan-category').value;
+    const sel = document.getElementById('scan-brand');
+    const brands = BRANDS[cat] || [];
+    sel.innerHTML = '<option value="">Choisir...</option>' + brands.map(b => `<option value="${b}">${b}</option>`).join('');
+}
+
+function renderScanRows() {
+    document.getElementById('scan-rows').innerHTML = scanRows.map((val, i) => `
+        <div class="scan-row">
+            <span style="color:var(--text-muted); font-size:13px; font-weight:600; min-width:20px;">${i+1}</span>
+            <input type="text" placeholder="Nom produit | Taille | Couleur" value="${val}" oninput="scanRows[${i}]=this.value">
+            <button class="scan-del" onclick="removeScanRow(${i})">✕</button>
+        </div>
+    `).join('');
+}
+
+function addScanRow() { scanRows.push(''); renderScanRows(); }
+function removeScanRow(i) { if (scanRows.length > 1) { scanRows.splice(i, 1); renderScanRows(); } }
+
+function submitScanRapide() {
+    const cat = document.getElementById('scan-category').value;
+    const brand = document.getElementById('scan-brand').value;
+    const price = parseFloat(document.getElementById('scan-purchase-price').value) || 0;
+
+    if (!cat) { showToast('⚠️ Choisis une catégorie'); return; }
+    if (!brand) { showToast('⚠️ Choisis une marque'); return; }
+
+    const valid = scanRows.filter(r => r.trim().length > 0);
+    if (valid.length === 0) { showToast('⚠️ Écris au moins un produit'); return; }
+
+    let added = 0;
+    valid.forEach(line => {
+        const parts = line.split('|').map(s => s.trim());
+        const name = parts[0] || 'Produit';
+        const size = parts[1] || '—';
+        const color = parts[2] || '—';
+
+        products.unshift({
+            id: Date.now() + added,
+            category: cat,
+            brand: brand,
+            name: name,
+            size: size,
+            color: color,
+            condition: 'Très bon état',
+            purchasePrice: price,
+            sellPrice: Math.round(price * 3.5),
+            status: 'testing',
+            notes: 'Scan rapide',
+            createdAt: Date.now(),
+            soldAt: null,
+            shippedAt: null,
+            customerName: ''
+        });
+        added++;
+    });
+
+    saveProducts();
+    updateDashboard();
+    closeScanRapide();
+    showToast(`✅ ${added} produit${added > 1 ? 's' : ''} ajouté${added > 1 ? 's' : ''} !`);
+}
+
+// ===== PHOTO ANALYZER (Claude Vision API) =====
+let photoFiles = [];
+let photoResults = [];
+
+function openPhotoAnalyzer() {
+    photoFiles = [];
+    photoResults = [];
+    document.getElementById('photo-grid').innerHTML = '';
+    document.getElementById('photo-results').style.display = 'none';
+    document.getElementById('photo-analyzing').style.display = 'none';
+    document.getElementById('btn-analyze-photos').style.display = 'none';
+    document.getElementById('modal-photo-analyzer').classList.add('active');
+
+    // Drag & drop setup
+    const zone = document.getElementById('photo-drop-zone');
+    zone.ondragover = (e) => { e.preventDefault(); zone.classList.add('drag-over'); };
+    zone.ondragleave = () => zone.classList.remove('drag-over');
+    zone.ondrop = (e) => { e.preventDefault(); zone.classList.remove('drag-over'); handlePhotoSelect({ target: { files: e.dataTransfer.files } }); };
+}
+function closePhotoAnalyzer() { document.getElementById('modal-photo-analyzer').classList.remove('active'); }
+
+function handlePhotoSelect(e) {
+    const files = Array.from(e.target.files || []);
+    files.forEach(f => {
+        if (f.type.startsWith('image/') && photoFiles.length < 10) {
+            photoFiles.push(f);
+        }
+    });
+    renderPhotoGrid();
+    document.getElementById('btn-analyze-photos').style.display = photoFiles.length > 0 ? 'block' : 'none';
+    // Reset input so same file can be re-added
+    document.getElementById('photo-file-input').value = '';
+}
+
+function renderPhotoGrid() {
+    const grid = document.getElementById('photo-grid');
+    grid.innerHTML = '';
+    photoFiles.forEach((f, i) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const div = document.createElement('div');
+            div.className = 'photo-thumb';
+            div.id = `thumb-${i}`;
+            div.innerHTML = `
+                <img src="${ev.target.result}" alt="">
+                <button class="thumb-remove" onclick="removePhoto(${i})">✕</button>
+                ${photoResults[i] ? `<div class="thumb-score score-${photoResults[i].scoreClass}">${photoResults[i].score}/10</div>` : ''}
+            `;
+            grid.appendChild(div);
+        };
+        reader.readAsDataURL(f);
+    });
+}
+
+function removePhoto(i) {
+    photoFiles.splice(i, 1);
+    photoResults.splice(i, 1);
+    renderPhotoGrid();
+    document.getElementById('btn-analyze-photos').style.display = photoFiles.length > 0 ? 'block' : 'none';
+    if (photoFiles.length === 0) {
+        document.getElementById('photo-results').style.display = 'none';
+    }
+}
+
+async function analyzePhotos() {
+    if (photoFiles.length === 0) return;
+
+    document.getElementById('btn-analyze-photos').style.display = 'none';
+    document.getElementById('photo-analyzing').style.display = 'block';
+    document.getElementById('photo-results').style.display = 'none';
+
+    // Convert all photos to base64
+    const base64Images = await Promise.all(photoFiles.map(f => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(f);
+    })));
+
+    // Build the prompt
+    const imageBlocks = base64Images.map((b64, i) => ({
+        type: 'image',
+        source: { type: 'base64', media_type: photoFiles[i].type, data: b64 }
+    }));
+
+    const prompt = `Tu es un expert en revente de produits sur Vinted et des plateformes similaires. Je t'envoie ${photoFiles.length} photo(s) de produit(s) pour vendre.
+
+Pour CHAQUE photo, analyse et donne :
+1. Un score de 1 à 10 (qualité pour une annonce de revente)
+2. Ce qui est bien
+3. Ce qui manque ou à améliorer
+4. Le classement final (quelle photo sera la meilleure en première position)
+
+Réponds UNIQUEMENT en JSON valide, format exact :
+{
+  "photos": [
+    {
+      "index": 0,
+      "score": 8,
+      "title": "Titre court descriptif de la photo",
+      "pros": ["point positif 1", "point positif 2"],
+      "cons": ["chose à améliorer 1"],
+      "tip": "Conseil principal pour cette photo"
+    }
+  ],
+  "ranking": [0, 2, 1],
+  "best_first_photo": 0,
+  "general_advice": "Conseil général pour améliorer l'ensemble"
+}`;
+
+    try {
+        // Envoie vers le proxy Netlify qui ajoute la clé API
+        const res = await fetch('/.netlify/functions/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ images: base64Images.map((b64, i) => ({ data: b64, media_type: photoFiles[i].type })), prompt })
+        });
+
+        const data = await res.json();
+        const text = data.content.map(b => b.text || '').join('');
+
+        // Parse JSON from response
+        let parsed;
+        try {
+            const jsonMatch = text.match(/\{[\s\S]*\}/);
+            parsed = JSON.parse(jsonMatch ? jsonMatch[0] : text);
+        } catch(e) {
+            showToast('⚠️ Erreur de parsing — réessaie');
+            document.getElementById('photo-analyzing').style.display = 'none';
+            document.getElementById('btn-analyze-photos').style.display = 'block';
+            return;
+        }
+
+        // Store results
+        photoResults = [];
+        (parsed.photos || []).forEach(p => {
+            const scoreClass = p.score >= 7 ? 'high' : p.score >= 4 ? 'mid' : 'low';
+            photoResults[p.index] = { score: p.score, scoreClass, title: p.title, pros: p.pros, cons: p.cons, tip: p.tip };
+        });
+
+        // Re-render grid with scores
+        renderPhotoGrid();
+
+        // Render ranked results
+        renderPhotoResults(parsed);
+
+    } catch(e) {
+        console.error('Claude API error:', e);
+        showToast('❌ Erreur API — vérifie ta connexion');
+    }
+
+    document.getElementById('photo-analyzing').style.display = 'none';
+}
+
+function renderPhotoResults(parsed) {
+    const container = document.getElementById('photo-results');
+    const ranking = parsed.ranking || [];
+    const photos = parsed.photos || [];
+
+    let html = '';
+
+    // General advice
+    if (parsed.general_advice) {
+        html += `<div class="glass-card" style="padding:16px; margin-bottom:12px; background:rgba(245,158,11,0.08); border-color:rgba(245,158,11,0.2);">
+            <div style="font-size:13px; font-weight:600; color:var(--accent-main); margin-bottom:6px;">💡 Conseil général</div>
+            <div style="font-size:13px; color:var(--text-secondary); line-height:1.5;">${parsed.general_advice}</div>
+        </div>`;
+    }
+
+    // Best first photo
+    if (parsed.best_first_photo !== undefined) {
+        html += `<div class="glass-card" style="padding:12px 16px; margin-bottom:12px; background:rgba(52,211,153,0.08); border-color:rgba(52,211,153,0.3);">
+            <span style="font-size:13px; color:var(--accent-profit);">🏆 Meilleure photo en 1ère position : Photo ${parsed.best_first_photo + 1}</span>
+        </div>`;
+    }
+
+    // Ranked photos
+    ranking.forEach((idx, rank) => {
+        const p = photos.find(ph => ph.index === idx);
+        if (!p) return;
+        const scoreClass = p.score >= 7 ? 'high' : p.score >= 4 ? 'mid' : 'low';
+        const medal = rank === 0 ? '🥇' : rank === 1 ? '🥈' : rank === 2 ? '🥉' : `#${rank+1}`;
+
+        html += `<div class="photo-analysis-card">
+            <div class="analysis-rank">${medal} Rang ${rank + 1} — Photo ${idx + 1}</div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="analysis-title">${p.title || 'Photo ' + (idx+1)}</div>
+                <div style="padding:4px 10px; border-radius:12px; font-size:13px; font-weight:700; background:${scoreClass==='high'?'rgba(245,158,11,0.2)':scoreClass==='mid'?'rgba(251,146,60,0.2)':'rgba(239,68,68,0.2)'}; color:${scoreClass==='high'?'#fbbf24':scoreClass==='mid'?'#fb923c':'#f87171'};">${p.score}/10</div>
+            </div>
+            ${p.pros && p.pros.length ? `<div style="margin-top:8px;"><div style="font-size:11px; color:var(--text-muted); margin-bottom:4px;">✅ BIEN</div>${p.pros.map(x => `<div style="font-size:12px; color:var(--accent-profit);">• ${x}</div>`).join('')}</div>` : ''}
+            ${p.cons && p.cons.length ? `<div style="margin-top:8px;"><div style="font-size:11px; color:var(--text-muted); margin-bottom:4px;">⚠️ À AMÉLIORER</div>${p.cons.map(x => `<div style="font-size:12px; color:var(--accent-warning);">• ${x}</div>`).join('')}</div>` : ''}
+            ${p.tip ? `<div style="margin-top:10px; padding:8px 12px; background:var(--glass-bg); border-radius:8px;"><div style="font-size:12px; color:var(--text-secondary);">💡 ${p.tip}</div></div>` : ''}
+        </div>`;
+    });
+
+    container.innerHTML = html;
+    container.style.display = 'block';
+}
+
+// ===== STATS CHART =====
+let chartRange = 3;
+
+function setChartRange(months, btn) {
+    chartRange = months;
+    document.querySelectorAll('.chart-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderStatsView();
+}
+
+function getMonthlyData(months) {
+    const data = [];
+    const now = new Date();
+
+    for (let i = months - 1; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const nextD = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+        const label = d.toLocaleString('fr', { month: 'short' });
+
+        const soldThisMonth = products.filter(p => {
+            if (p.status !== 'sold' && p.status !== 'shipped') return false;
+            if (!p.soldAt) return false;
+            const soldDate = new Date(p.soldAt);
+            return soldDate >= d && soldDate < nextD;
+        });
+
+        const revenue = soldThisMonth.reduce((s, p) => s + (p.sellPrice - p.purchasePrice), 0);
+        const count = soldThisMonth.length;
+
+        data.push({ label, revenue, count, month: d.getMonth(), year: d.getFullYear() });
+    }
+    return data;
+}
+
+function renderStatsView() {
+    const data = getMonthlyData(chartRange);
+    const total = data.reduce((s, d) => s + d.revenue, 0);
+    document.getElementById('chart-total').textContent = total.toFixed(0) + '€';
+
+    drawChart(data);
+    renderMonthDetail(data);
+    renderCategoryStats();
+}
+
+function drawChart(data) {
+    const svg = document.getElementById('chart-svg');
+    const W = 300, H = 160;
+    const padL = 36, padR = 8, padT = 10, padB = 28;
+    const chartW = W - padL - padR;
+    const chartH = H - padT - padB;
+
+    const maxVal = Math.max(...data.map(d => d.revenue), 1);
+    const step = chartW / (data.length - 1 || 1);
+
+    // Grid lines
+    let gridLines = '';
+    const ySteps = 3;
+    for (let i = 0; i <= ySteps; i++) {
+        const y = padT + (chartH / ySteps) * i;
+        const val = maxVal - (maxVal / ySteps) * i;
+        gridLines += `<line class="chart-grid" x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}"/>`;
+        gridLines += `<text class="chart-label" x="2" y="${y + 3}" text-anchor="start">${Math.round(val)}€</text>`;
+    }
+
+    // X labels
+    let xLabels = '';
+    data.forEach((d, i) => {
+        const x = padL + step * i;
+        xLabels += `<text class="chart-label" x="${x}" y="${H - 6}" text-anchor="middle">${d.label}</text>`;
+    });
+
+    // Points
+    const points = data.map((d, i) => {
+        const x = padL + step * i;
+        const y = padT + chartH - (d.revenue / maxVal) * chartH;
+        return { x, y, ...d };
+    });
+
+    // Area path
+    let areaD = `M ${points[0].x} ${padT + chartH}`;
+    points.forEach(p => { areaD += ` L ${p.x} ${p.y}`; });
+    areaD += ` L ${points[points.length-1].x} ${padT + chartH} Z`;
+
+    // Line path
+    let lineD = `M ${points[0].x} ${points[0].y}`;
+    points.slice(1).forEach(p => { lineD += ` L ${p.x} ${p.y}`; });
+
+    // Dots
+    let dots = points.map(p => `<circle class="chart-dot" cx="${p.x}" cy="${p.y}" r="3.5"/>`).join('');
+
+    svg.innerHTML = `
+        <defs>
+            <linearGradient id="chart-grad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.4"/>
+                <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+            </linearGradient>
+        </defs>
+        ${gridLines}
+        ${xLabels}
+        <path class="chart-area" d="${areaD}"/>
+        <path class="chart-line" d="${lineD}"/>
+        ${dots}
+    `;
+}
+
+function renderMonthDetail(data) {
+    const container = document.getElementById('stats-month-detail');
+    container.innerHTML = data.map(d => `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--glass-border);">
+            <div>
+                <div style="font-size:14px; font-weight:600;">${d.label}</div>
+                <div style="font-size:12px; color:var(--text-muted);">${d.count} vente${d.count !== 1 ? 's' : ''}</div>
+            </div>
+            <div style="font-size:18px; font-weight:700; color:${d.revenue > 0 ? 'var(--accent-profit)' : 'var(--text-muted)'};">${d.revenue > 0 ? '+' : ''}${d.revenue.toFixed(0)}€</div>
+        </div>
+    `).join('');
+}
+
+function renderCategoryStats() {
+    const cats = ['chaussures','sacs','vestements','accessoires','electronique'];
+    const icons = { chaussures:'👟', sacs:'👜', vestements:'👕', accessoires:'⌚', electronique:'📱' };
+    const labels = { chaussures:'Chaussures', sacs:'Sacs', vestements:'Vestements', accessoires:'Accessoires', electronique:'Électronique' };
+
+    const catData = cats.map(cat => {
+        const sold = products.filter(p => p.category === cat && (p.status === 'sold' || p.status === 'shipped'));
+        const revenue = sold.reduce((s, p) => s + (p.sellPrice - p.purchasePrice), 0);
+        return { cat, revenue, count: sold.length };
+    }).sort((a, b) => b.revenue - a.revenue);
+
+    const maxRev = Math.max(...catData.map(d => d.revenue), 1);
+
+    document.getElementById('stats-by-category').innerHTML = catData.map(d => `
+        <div style="margin-bottom:14px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                <span style="font-size:13px;">${icons[d.cat]} ${labels[d.cat]}</span>
+                <span style="font-size:13px; color:var(--accent-profit); font-weight:600;">${d.revenue.toFixed(0)}€ (${d.count} vente${d.count!==1?'s':''})</span>
+            </div>
+            <div style="height:6px; background:var(--glass-bg); border-radius:3px;">
+                <div style="height:100%; width:${(d.revenue/maxRev)*100}%; background:var(--gradient-primary); border-radius:3px; transition:width 0.5s;"></div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// ===== MARKET RESEARCH =====
+let marketHistory = JSON.parse(localStorage.getItem('resale_market_history') || '[]');
+
+function updateMarketBrands() {
+    const cat = document.getElementById('market-category').value;
+    const sel = document.getElementById('market-brand');
+    const brands = BRANDS[cat] || [];
+    if (cat && brands.length) {
+        sel.innerHTML = '<option value="">Toutes les marques</option>' + brands.map(b => `<option value="${b}">${b}</option>`).join('');
+        sel.style.display = 'block';
+    } else {
+        sel.innerHTML = '<option value="">Toutes les marques</option>';
+    }
+}
+
+function renderMarketHistory() {
+    const container = document.getElementById('market-history');
+    if (marketHistory.length === 0) { container.innerHTML = ''; return; }
+    const recent = marketHistory.slice(0, 3);
+    container.innerHTML = `<div style="margin-bottom:8px;"><span style="font-size:12px; color:var(--text-muted);">Recherches récentes</span></div>` +
+        recent.map((h, i) => `
+            <div style="display:inline-flex; margin-right:8px; margin-bottom:8px;">
+                <button onclick="replayMarketSearch(${i})" style="padding:6px 14px; border-radius:20px; background:var(--glass-bg); border:1px solid var(--glass-border); color:var(--text-secondary); font-size:12px; cursor:pointer;">
+                    🔁 ${h.label}
+                </button>
+            </div>
+        `).join('');
+}
+
+function replayMarketSearch(i) {
+    const h = marketHistory[i];
+    if (!h) return;
+    document.getElementById('market-category').value = h.category || '';
+    document.getElementById('market-brand').value = h.brand || '';
+    updateMarketBrands();
+    if (h.brand) document.getElementById('market-brand').value = h.brand;
+    launchMarketResearch();
+}
+
+async function launchMarketResearch() {
+    const cat = document.getElementById('market-category').value;
+    const brand = document.getElementById('market-brand').value;
+
+    const catLabels = { chaussures:'Chaussures', sacs:'Sacs & Maroquinerie', vestements:'Vestements', accessoires:'Accessoires', electronique:'Électronique' };
+
+    // Build search context
+    let searchContext = 'revente occasion France 2025';
+    if (cat && brand) searchContext = `${brand} ${catLabels[cat] || cat} revente occasion prix Vinted 2025`;
+    else if (brand) searchContext = `${brand} revente occasion prix Vinted 2025`;
+    else if (cat) searchContext = `${catLabels[cat]} revente occasion niches tendances Vinted 2025`;
+
+    // Save to history
+    const label = brand && cat ? `${brand} - ${catLabels[cat]}` : brand || catLabels[cat] || 'Tout';
+    marketHistory.unshift({ label, category: cat, brand, date: Date.now() });
+    marketHistory = marketHistory.slice(0, 10);
+    localStorage.setItem('resale_market_history', JSON.stringify(marketHistory));
+    renderMarketHistory();
+
+    // UI
+    document.getElementById('market-loading').style.display = 'block';
+    document.getElementById('market-results').innerHTML = '';
+    document.getElementById('btn-market-search').disabled = true;
+    document.getElementById('btn-market-search').style.opacity = '0.5';
+
+    const prompt = `Tu es un expert en revente de produits occasion en France sur Vinted, Depop, Leboncoin et similaires.
+
+Contexte de recherche : ${searchContext}
+
+Fais une analyse détaillée des niches les plus rentables en ce moment pour : ${brand ? brand + ' ' : ''}${catLabels[cat] || 'tous les produits de revente'}.
+
+Réponds UNIQUEMENT en JSON valide, format exact :
+{
+  "niches": [
+    {
+      "name": "Nom de la niche",
+      "trend": "hausse" | "stable" | "baisse",
+      "avg_buy_price": 25,
+      "avg_sell_price": 85,
+      "margin_pct": 240,
+      "demand": "forte" | "moyenne" | "faible",
+      "competition": "forte" | "moyenne" | "faible",
+      "best_platforms": ["Vinted", "Depop"],
+      "tips": ["conseil 1", "conseil 2"],
+      "where_to_buy": "Alibaba, vide-greniers, Vinted...",
+      "hot_items": ["item spécifique 1", "item spécifique 2"]
+    }
+  ],
+  "global_advice": "Conseil général sur le marché en ce moment",
+  "trending_brands": ["marque1", "marque2"],
+  "seasonal_tip": "Conseil saisonnier"
+}`;
+
+    try {
+        const res = await fetch('/.netlify/functions/market', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt, searchContext })
+        });
+
+        const data = await res.json();
+
+        let parsed;
+        if (data.result) {
+            // Le proxy retourne déjà le résultat parsé ou le texte brut
+            try {
+                const jsonMatch = data.result.match(/\{[\s\S]*\}/);
+                parsed = JSON.parse(jsonMatch ? jsonMatch[0] : data.result);
+            } catch(e) {
+                parsed = { niches: [], global_advice: data.result };
+            }
+        } else {
+            parsed = data;
+        }
+
+        renderMarketResults(parsed);
+
+    } catch(e) {
+        console.error('Market research error:', e);
+        document.getElementById('market-results').innerHTML = `
+            <div class="glass-card" style="padding:24px; text-align:center;">
+                <div style="font-size:32px; margin-bottom:8px;">❌</div>
+                <p style="color:var(--accent-warning); font-size:14px;">Erreur de connexion</p>
+                <p style="color:var(--text-muted); font-size:12px; margin-top:4px;">Vérifie que le proxy Netlify est bien configuré</p>
+            </div>`;
+    }
+
+    document.getElementById('market-loading').style.display = 'none';
+    document.getElementById('btn-market-search').disabled = false;
+    document.getElementById('btn-market-search').style.opacity = '1';
+}
+
+function renderMarketResults(parsed) {
+    const container = document.getElementById('market-results');
+    let html = '';
+
+    // Trending brands
+    if (parsed.trending_brands && parsed.trending_brands.length) {
+        html += `<div class="glass-card" style="padding:16px; margin-bottom:12px; background:rgba(52,211,153,0.06); border-color:rgba(245,158,11,0.2);">
+            <div style="font-size:13px; font-weight:600; color:var(--accent-profit); margin-bottom:8px;">🏆 Marques qui marchent</div>
+            <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                ${parsed.trending_brands.map(b => `<span style="padding:4px 12px; border-radius:14px; background:rgba(52,211,153,0.15); color:var(--accent-profit); font-size:12px; font-weight:600;">${b}</span>`).join('')}
+            </div>
+        </div>`;
+    }
+
+    // Seasonal tip
+    if (parsed.seasonal_tip) {
+        html += `<div class="glass-card" style="padding:14px 16px; margin-bottom:12px; background:rgba(251,146,60,0.06); border-color:rgba(251,146,60,0.2);">
+            <div style="font-size:12px; color:var(--accent-warning); font-weight:600; margin-bottom:4px;">🌡️ Conseil saisonnier</div>
+            <div style="font-size:13px; color:var(--text-secondary);">${parsed.seasonal_tip}</div>
+        </div>`;
+    }
+
+    // Global advice
+    if (parsed.global_advice) {
+        html += `<div class="glass-card" style="padding:14px 16px; margin-bottom:16px; background:rgba(245,158,11,0.06); border-color:rgba(245,158,11,0.15);">
+            <div style="font-size:12px; color:var(--accent-main); font-weight:600; margin-bottom:4px;">💡 Analyse du marché</div>
+            <div style="font-size:13px; color:var(--text-secondary); line-height:1.5;">${parsed.global_advice}</div>
+        </div>`;
+    }
+
+    // Niches
+    if (parsed.niches && parsed.niches.length) {
+        html += `<div style="font-size:15px; font-weight:600; margin-bottom:12px;">🎯 Niches identifiées</div>`;
+
+        parsed.niches.forEach((n, i) => {
+            const trendIcon = n.trend === 'hausse' ? '📈' : n.trend === 'baisse' ? '📉' : '➡️';
+            const trendColor = n.trend === 'hausse' ? 'var(--accent-profit)' : n.trend === 'baisse' ? 'var(--accent-warning)' : 'var(--text-secondary)';
+            const demandColor = n.demand === 'forte' ? 'var(--accent-profit)' : n.demand === 'moyenne' ? 'var(--accent-warning)' : 'var(--text-muted)';
+            const compColor = n.competition === 'forte' ? 'var(--accent-warning)' : n.competition === 'moyenne' ? '#f1c40f' : 'var(--accent-profit)';
+
+            html += `<div class="glass-card" style="padding:16px; margin-bottom:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <div style="font-size:16px; font-weight:700;">${n.name}</div>
+                    <div style="display:flex; align-items:center; gap:4px; color:${trendColor}; font-size:13px; font-weight:600;">${trendIcon} ${n.trend}</div>
+                </div>
+
+                <!-- Prix & Marge -->
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:12px;">
+                    <div style="text-align:center; padding:8px; background:var(--glass-bg); border-radius:10px;">
+                        <div style="font-size:10px; color:var(--text-muted); margin-bottom:2px;">ACHAT</div>
+                        <div style="font-size:16px; font-weight:700; color:var(--text-primary);">${n.avg_buy_price}€</div>
+                    </div>
+                    <div style="text-align:center; padding:8px; background:var(--glass-bg); border-radius:10px;">
+                        <div style="font-size:10px; color:var(--text-muted); margin-bottom:2px;">VENTE</div>
+                        <div style="font-size:16px; font-weight:700; color:var(--accent-main);">${n.avg_sell_price}€</div>
+                    </div>
+                    <div style="text-align:center; padding:8px; background:rgba(52,211,153,0.1); border-radius:10px;">
+                        <div style="font-size:10px; color:var(--text-muted); margin-bottom:2px;">MARGE</div>
+                        <div style="font-size:16px; font-weight:700; color:var(--accent-profit);">+${n.margin_pct}%</div>
+                    </div>
+                </div>
+
+                <!-- Demand / Competition -->
+                <div style="display:flex; gap:12px; margin-bottom:10px;">
+                    <div style="display:flex; align-items:center; gap:4px;">
+                        <span style="font-size:11px; color:var(--text-muted);">Demande :</span>
+                        <span style="font-size:12px; font-weight:600; color:${demandColor};">${n.demand}</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:4px;">
+                        <span style="font-size:11px; color:var(--text-muted);">Compétition :</span>
+                        <span style="font-size:12px; font-weight:600; color:${compColor};">${n.competition}</span>
+                    </div>
+                </div>
+
+                <!-- Plateformes -->
+                ${n.best_platforms && n.best_platforms.length ? `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+                    ${n.best_platforms.map(p => `<span style="padding:3px 10px; border-radius:12px; background:var(--glass-bg); border:1px solid var(--glass-border); font-size:11px; color:var(--text-secondary);">${p}</span>`).join('')}
+                </div>` : ''}
+
+                <!-- Hot items -->
+                ${n.hot_items && n.hot_items.length ? `<div style="margin-bottom:8px;">
+                    <div style="font-size:11px; color:var(--text-muted); margin-bottom:4px;">🔥 Items chauds</div>
+                    ${n.hot_items.map(item => `<div style="font-size:12px; color:var(--accent-profit); padding:2px 0;">• ${item}</div>`).join('')}
+                </div>` : ''}
+
+                <!-- Where to buy -->
+                ${n.where_to_buy ? `<div style="margin-bottom:8px;">
+                    <div style="font-size:11px; color:var(--text-muted); margin-bottom:2px;">🛒 Où acheter</div>
+                    <div style="font-size:12px; color:var(--text-secondary);">${n.where_to_buy}</div>
+                </div>` : ''}
+
+                <!-- Tips -->
+                ${n.tips && n.tips.length ? `<div style="margin-top:10px; padding:10px 12px; background:var(--glass-bg); border-radius:8px;">
+                    ${n.tips.map(t => `<div style="font-size:12px; color:var(--text-secondary); padding:2px 0;">💡 ${t}</div>`).join('')}
+                </div>` : ''}
+            </div>`;
+        });
+    } else {
+        html += `<div class="glass-card" style="padding:24px; text-align:center;">
+            <p style="color:var(--text-muted); font-size:14px;">Aucune niche trouvée — essaie avec d'autres filtres</p>
+        </div>`;
+    }
+
+    container.innerHTML = html;
+}
+
+// ===== ORDERS =====
+function openOrderModal() { document.getElementById('modal-order').classList.add('active'); }
+function closeOrderModal() { document.getElementById('modal-order').classList.remove('active'); document.getElementById('form-order').reset(); }
+
+function handleAddOrder(e) {
+    e.preventDefault();
+    orders.push({
+        id: Date.now(),
+        category: document.getElementById('order-category').value,
+        model: document.getElementById('order-model').value,
+        seller: document.getElementById('order-seller').value,
+        price: parseFloat(document.getElementById('order-price').value),
+        deliveryDate: document.getElementById('order-delivery').value,
+        status: 'pending',
+        createdAt: Date.now()
+    });
+    saveOrders(); closeOrderModal(); renderOrders();
+    showToast('🛒 Commande ajoutée !');
+}
+
+function renderOrders() {
+    const container = document.getElementById('orders-list');
+    if (orders.length === 0) { container.innerHTML = `<div class="glass-card" style="padding:32px;text-align:center;color:var(--text-secondary);"><p>Aucune commande en cours</p></div>`; return; }
+    const catIcons = { chaussures:'👟', sacs:'👜', vestements:'👕', accessoires:'⌚', electronique:'📱' };
+    container.innerHTML = orders.map(o => {
+        const d = new Date(o.deliveryDate);
+        const daysUntil = Math.ceil((d - Date.now()) / 86400000);
+        return `<div class="order-card glass-card">
+            <div class="order-header">
+                <div class="order-title">${catIcons[o.category]||''} ${o.model}</div>
+                <div class="order-info">🏪 ${o.seller}</div>
+                <div class="order-info">💸 ${o.price}€</div>
+                <div class="order-info">📅 Arrivée : ${d.toLocaleDateString()} ${daysUntil >= 0 ? '(dans '+daysUntil+'j)' : '(RETARD!)'}</div>
+            </div>
+            <div class="order-footer">
+                <button class="btn-small primary" onclick="markOrderReceived(${o.id})">✅ Reçu</button>
+                <button class="btn-small" onclick="deleteOrder(${o.id})">❌ Annuler</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function markOrderReceived(id) {
+    const o = orders.find(or => or.id === id);
+    orders = orders.filter(or => or.id !== id);
+    saveOrders(); renderOrders();
+    showToast(`📦 ${o.model} reçu ! Ajoute-le à l'inventaire`);
+}
+
+function deleteOrder(id) {
+    if (!confirm('Annuler cette commande ?')) return;
+    orders = orders.filter(o => o.id !== id);
+    saveOrders(); renderOrders();
+    showToast('❌ Commande annulée');
+}
+
+// ===== SHIPPING =====
+function renderShipping() {
+    const container = document.getElementById('shipping-list');
+    const toShip = products.filter(p => p.status === 'sold' && !p.shippedAt);
+    if (toShip.length === 0) { container.innerHTML = `<div class="glass-card" style="padding:32px;text-align:center;color:var(--text-secondary);"><p>✅ Rien à expédier !</p></div>`; return; }
+    const now = Date.now();
+    container.innerHTML = toShip.map(p => {
+        const daysLeft = CONFIG.shippingDeadlineDays - Math.floor((now - p.soldAt) / 86400000);
+        const urgent = daysLeft <= 2;
+        return `<div class="shipping-card glass-card ${urgent ? 'urgent' : ''}">
+            <div class="shipping-header">
+                <div>
+                    <div class="product-title">🛍️ ${p.brand} ${p.name}</div>
+                    <div class="product-subtitle">Vendu le ${new Date(p.soldAt).toLocaleDateString()}</div>
+                    ${p.customerName ? `<div class="product-subtitle">Client: ${p.customerName}</div>` : ''}
+                </div>
+                <div class="shipping-deadline ${urgent ? 'urgent' : 'ok'}">${daysLeft > 0 ? daysLeft+'j' : 'Aujourd\'hui!'}</div>
+            </div>
+            <button class="btn-primary" style="margin-top:12px;" onclick="markShipped(${p.id})">📦 Marquer comme expédié</button>
+        </div>`;
+    }).join('');
+}
+
+function markShipped(id) {
+    const p = products.find(pr => pr.id === id);
+    if (!p) return;
+    p.status = 'shipped'; p.shippedAt = Date.now();
+    stock.cartonsSmall = Math.max(0, stock.cartonsSmall - 1);
+    stock.bubbleWrap = Math.max(0, stock.bubbleWrap - 1);
+    stock.labels = Math.max(0, stock.labels - 1);
+    saveProducts(); saveStock(); renderShipping(); updateDashboard();
+    showToast('📦 Expédié !');
+}
+
+// ===== STOCK =====
+function renderStock() {
+    document.getElementById('stock-grid').innerHTML = `
+        <div class="stock-item glass-card"><div class="stock-icon">📦</div><div class="stock-label">Cartons petits</div><div class="stock-value ${stock.cartonsSmall<5?'low':''}">${stock.cartonsSmall}</div><div class="stock-controls"><button class="stock-btn" onclick="updateStock('cartonsSmall',-1)">−</button><button class="stock-btn" onclick="updateStock('cartonsSmall',1)">+</button></div></div>
+        <div class="stock-item glass-card"><div class="stock-icon">📦</div><div class="stock-label">Cartons grands</div><div class="stock-value ${stock.cartonsLarge<5?'low':''}">${stock.cartonsLarge}</div><div class="stock-controls"><button class="stock-btn" onclick="updateStock('cartonsLarge',-1)">−</button><button class="stock-btn" onclick="updateStock('cartonsLarge',1)">+</button></div></div>
+        <div class="stock-item glass-card"><div class="stock-icon">🫧</div><div class="stock-label">Papier bulle</div><div class="stock-value">${stock.bubbleWrap}</div><div class="stock-controls"><button class="stock-btn" onclick="updateStock('bubbleWrap',-1)">−</button><button class="stock-btn" onclick="updateStock('bubbleWrap',1)">+</button></div></div>
+        <div class="stock-item glass-card"><div class="stock-icon">📍</div><div class="stock-label">Scotch</div><div class="stock-value">${stock.tape}</div><div class="stock-controls"><button class="stock-btn" onclick="updateStock('tape',-1)">−</button><button class="stock-btn" onclick="updateStock('tape',1)">+</button></div></div>
+        <div class="stock-item glass-card"><div class="stock-icon">🏷️</div><div class="stock-label">Étiquettes</div><div class="stock-value">${stock.labels}</div><div class="stock-controls"><button class="stock-btn" onclick="updateStock('labels',-5)">−5</button><button class="stock-btn" onclick="updateStock('labels',5)">+5</button></div></div>`;
+}
+
+function updateStock(key, delta) { stock[key] = Math.max(0, stock[key] + delta); saveStock(); renderStock(); }
+
+// ===== NOTIFICATIONS =====
+function updateNotifications() {
+    const notifs = [];
+    const now = Date.now();
+    products.filter(p => p.status === 'sold' && !p.shippedAt).forEach(p => {
+        const daysLeft = CONFIG.shippingDeadlineDays - Math.floor((now - p.soldAt) / 86400000);
+        if (daysLeft <= 0) notifs.push({ icon: '🚨', msg: `URGENT: Expédie ${p.brand} ${p.name} aujourd'hui !` });
+        else if (daysLeft <= 2) notifs.push({ icon: '⚡', msg: `${p.brand} ${p.name} à expédier dans ${daysLeft}j` });
+    });
+    products.filter(p => p.status === 'testing').forEach(p => {
+        if (Math.floor((now - p.createdAt) / 86400000) >= 2) notifs.push({ icon: '⏰', msg: `${p.brand} ${p.name} à vérifier depuis 2+ jours` });
+    });
+    if (stock.cartonsSmall < 5) notifs.push({ icon: '📦', msg: `Plus que ${stock.cartonsSmall} cartons petits` });
+
+    const badge = document.getElementById('notif-count');
+    badge.textContent = notifs.length;
+    badge.style.display = notifs.length > 0 ? 'flex' : 'none';
+
+    const container = document.getElementById('notifications-list');
+    if (notifs.length === 0) { container.innerHTML = `<div class="glass-card" style="padding:32px;text-align:center;color:var(--text-secondary);"><p>✅ Tout est sous contrôle !</p></div>`; return; }
+    container.innerHTML = notifs.map(n => `<div class="glass-card" style="padding:16px;margin-bottom:12px;"><div style="display:flex;align-items:center;gap:12px;"><span style="font-size:24px;">${n.icon}</span><span style="flex:1;font-size:14px;">${n.msg}</span></div></div>`).join('');
+}
+
+// ===== VIEWS =====
+function showView(name) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(`view-${name}`).classList.add('active');
+    if (name === 'stock') renderStock();
+    if (name === 'orders') renderOrders();
+    if (name === 'shipping') renderShipping();
+    if (name === 'notifications') updateNotifications();
+    if (name === 'dashboard') updateDashboard();
+    if (name === 'stats') renderStatsView();
+    if (name === 'market') renderMarketHistory();
+}
+
+// ===== TOAST =====
+function showToast(msg) {
+    const toast = document.getElementById('toast');
+    document.getElementById('toast-message').textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// ===== START =====
+window.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>
